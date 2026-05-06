@@ -1,0 +1,4054 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>よろずミッション手帳｜スケジュールをゲーム化する</title>
+  <style>
+    :root {
+      --bg: #fff8ed;
+      --bg2: #fffdf8;
+      --card: rgba(255,255,255,.88);
+      --ink: #243044;
+      --muted: #6e7480;
+      --line: rgba(36,48,68,.12);
+      --accent: #ff9f43;
+      --accent2: #55c7f3;
+      --accent3: #8bd17c;
+      --danger: #e75f65;
+      --shadow: 0 18px 45px rgba(44, 32, 12, .11);
+      --radius: 22px;
+      --focus: 0 0 0 4px rgba(85,199,243,.28);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", Meiryo, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(255,207,104,.48), transparent 34%),
+        radial-gradient(circle at 92% 10%, rgba(85,199,243,.32), transparent 32%),
+        linear-gradient(160deg, #fff8ed 0%, #f7fbff 52%, #fffaf2 100%);
+      min-height: 100vh;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+      outline: none;
+      box-shadow: var(--focus);
+    }
+
+    .app {
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 60px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border-radius: 30px;
+      padding: 26px;
+      background: linear-gradient(135deg, rgba(255,255,255,.92), rgba(255,248,226,.86));
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,.65);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -70px;
+      top: -80px;
+      width: 250px;
+      height: 250px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,159,67,.35), transparent 62%);
+      pointer-events: none;
+    }
+
+    .hero-row {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(85,199,243,.14);
+      color: #176d92;
+      font-weight: 800;
+      font-size: .88rem;
+    }
+
+    h1 {
+      margin: 14px 0 8px;
+      font-size: clamp(1.85rem, 5vw, 3.4rem);
+      line-height: 1.05;
+      letter-spacing: -.04em;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.75;
+      max-width: 58em;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .mission-card {
+      border-radius: 26px;
+      padding: 18px;
+      background: rgba(255,255,255,.72);
+      border: 1px solid var(--line);
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .mission-title {
+      font-size: 1rem;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .mission-main {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .mission-number {
+      font-size: clamp(2rem, 6vw, 4rem);
+      font-weight: 950;
+      line-height: 1;
+    }
+
+    .mission-copy {
+      margin: 0;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .stat {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 14px;
+      box-shadow: 0 10px 30px rgba(30,30,30,.05);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.35rem;
+      margin-top: 4px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: .86rem;
+      font-weight: 700;
+    }
+
+    .stat small {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: .78rem;
+      line-height: 1.45;
+      font-weight: 750;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 16px;
+      margin-top: 18px;
+      align-items: start;
+    }
+
+    .side {
+      position: sticky;
+      top: 14px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-pad { padding: 16px; }
+
+    .panel h2, .panel h3 {
+      margin: 0 0 12px;
+      letter-spacing: -.02em;
+    }
+
+    .soft {
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: .94rem;
+    }
+
+    .today-box {
+      display: grid;
+      gap: 10px;
+    }
+
+    .date-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .date-row input { flex: 1; }
+
+    .progress-shell {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .progress-ring {
+      --p: 0;
+      width: 92px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: conic-gradient(var(--accent) calc(var(--p) * 1%), rgba(36,48,68,.09) 0);
+      display: grid;
+      place-items: center;
+      position: relative;
+    }
+
+    .progress-ring::before {
+      content: "";
+      position: absolute;
+      width: 70%;
+      height: 70%;
+      border-radius: 50%;
+      background: white;
+      box-shadow: inset 0 0 0 1px var(--line);
+    }
+
+    .progress-ring span {
+      position: relative;
+      font-weight: 950;
+    }
+
+    .bar {
+      height: 13px;
+      border-radius: 999px;
+      background: rgba(36,48,68,.08);
+      overflow: hidden;
+      border: 1px solid rgba(36,48,68,.04);
+    }
+
+    .bar > i {
+      display: block;
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), #ffd166, var(--accent3));
+      transition: width .35s ease;
+    }
+
+    .nav-tabs {
+      display: grid;
+      gap: 8px;
+    }
+
+    .tab-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-align: left;
+      padding: 12px 13px;
+      border-radius: 16px;
+      background: transparent;
+      color: var(--ink);
+      font-weight: 850;
+    }
+
+    .tab-btn:hover { background: rgba(255,159,67,.10); }
+    .tab-btn.active {
+      background: linear-gradient(135deg, rgba(255,159,67,.22), rgba(85,199,243,.16));
+      box-shadow: inset 0 0 0 1px rgba(255,159,67,.26);
+    }
+
+    .main {
+      display: grid;
+      gap: 16px;
+    }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .toolbar-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 10px 14px;
+      min-height: 42px;
+      font-weight: 900;
+      color: var(--ink);
+      background: white;
+      border: 1px solid var(--line);
+      box-shadow: 0 8px 20px rgba(30,30,30,.06);
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 12px 26px rgba(30,30,30,.09); }
+    .btn.primary { background: linear-gradient(135deg, #ffb55b, #ffd166); border-color: rgba(255,159,67,.45); }
+    .btn.blue { background: linear-gradient(135deg, #dff6ff, #e9fbff); border-color: rgba(85,199,243,.35); }
+    .btn.green { background: linear-gradient(135deg, #e8ffe4, #f2fff0); border-color: rgba(139,209,124,.36); }
+    .btn.danger { background: #fff1f1; color: #a83338; border-color: rgba(231,95,101,.28); }
+    .btn.ghost { background: transparent; box-shadow: none; }
+    .btn.small { min-height: 34px; padding: 7px 10px; font-size: .88rem; }
+    .btn:disabled { opacity: .48; cursor: not-allowed; transform: none; }
+
+    .task-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .task-card {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: start;
+      background: rgba(255,255,255,.9);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 14px;
+      box-shadow: 0 10px 25px rgba(30,30,30,.05);
+      transition: transform .18s ease, opacity .18s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .task-card.done { opacity: .72; }
+    .task-card.done .task-title { text-decoration: line-through; }
+    .task-card:hover { transform: translateY(-1px); }
+
+    .task-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      font-size: 1.45rem;
+      background: linear-gradient(135deg, rgba(255,159,67,.18), rgba(85,199,243,.16));
+      border: 1px solid rgba(36,48,68,.08);
+    }
+
+    .task-title {
+      margin: 0;
+      font-size: 1.08rem;
+      line-height: 1.35;
+    }
+
+    .task-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+      align-items: center;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(36,48,68,.06);
+      color: var(--muted);
+      font-weight: 750;
+      font-size: .78rem;
+    }
+
+    .tag.must { background: rgba(231,95,101,.12); color: #9c3439; }
+    .tag.softmode { background: rgba(85,199,243,.15); color: #1a7195; }
+    .tag.free { background: rgba(139,209,124,.16); color: #39783a; }
+    .tag.warn { background: rgba(255,159,67,.16); color: #94601b; }
+
+    .task-note {
+      margin: 9px 0 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: .92rem;
+      white-space: pre-wrap;
+    }
+
+    .task-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 7px;
+      min-width: 190px;
+    }
+
+    .empty {
+      border: 2px dashed rgba(36,48,68,.16);
+      border-radius: 24px;
+      padding: 22px;
+      background: rgba(255,255,255,.6);
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: .84rem;
+      color: var(--muted);
+      font-weight: 900;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid rgba(36,48,68,.16);
+      border-radius: 14px;
+      padding: 11px 12px;
+      background: rgba(255,255,255,.86);
+      color: var(--ink);
+    }
+
+    textarea { min-height: 96px; resize: vertical; }
+
+    .hint-box {
+      display: grid;
+      gap: 8px;
+      background: linear-gradient(135deg, rgba(85,199,243,.12), rgba(255,159,67,.10));
+      border: 1px solid rgba(36,48,68,.10);
+      border-radius: 20px;
+      padding: 14px;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .timer-board {
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .timer-face {
+      min-height: 280px;
+      border-radius: 28px;
+      background: linear-gradient(145deg, rgba(255,255,255,.92), rgba(255,236,204,.72));
+      border: 1px solid var(--line);
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 22px;
+    }
+
+    .timer-time {
+      font-size: clamp(3rem, 9vw, 6.2rem);
+      font-weight: 950;
+      line-height: 1;
+      letter-spacing: -.05em;
+      margin: 10px 0;
+    }
+
+    .timer-mode {
+      display: inline-flex;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(36,48,68,.08);
+      font-weight: 900;
+      color: var(--muted);
+    }
+
+    .weekly {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      align-items: end;
+      min-height: 175px;
+      margin-top: 12px;
+    }
+
+    .daybar {
+      display: grid;
+      gap: 8px;
+      justify-items: center;
+      align-items: end;
+      height: 160px;
+    }
+
+    .daybar i {
+      display: block;
+      width: 100%;
+      min-height: 8px;
+      border-radius: 999px 999px 8px 8px;
+      background: linear-gradient(180deg, var(--accent2), var(--accent3));
+      box-shadow: inset 0 -10px 18px rgba(255,255,255,.24);
+    }
+
+    .daybar span {
+      font-size: .78rem;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .reward-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .reward-card, .history-card {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 14px;
+      background: rgba(255,255,255,.78);
+      display: grid;
+      gap: 10px;
+    }
+
+    .reward-title, .history-title {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.4;
+    }
+
+    .history-list {
+      display: grid;
+      gap: 10px;
+      max-height: 420px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    details.manual {
+      background: rgba(255,255,255,.78);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 12px 14px;
+    }
+
+    details.manual summary {
+      cursor: pointer;
+      font-weight: 950;
+    }
+
+    .manual-content {
+      color: var(--muted);
+      line-height: 1.75;
+      margin-top: 10px;
+    }
+
+    .manual-content ul { padding-left: 1.25em; }
+
+    .toast-zone {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 99;
+      display: grid;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .toast {
+      pointer-events: auto;
+      max-width: min(370px, calc(100vw - 32px));
+      background: rgba(36,48,68,.94);
+      color: white;
+      border-radius: 18px;
+      padding: 12px 14px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.22);
+      animation: toastIn .25s ease both;
+      line-height: 1.55;
+    }
+
+    @keyframes toastIn { from { transform: translateY(8px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    .confetti {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 80;
+    }
+
+    .confetti b {
+      position: absolute;
+      top: -20px;
+      width: 10px;
+      height: 16px;
+      border-radius: 4px;
+      background: var(--accent);
+      animation: fall 1.3s ease-in forwards;
+    }
+
+    @keyframes fall {
+      to { transform: translateY(105vh) rotate(740deg); opacity: 0; }
+    }
+
+    dialog {
+      border: 0;
+      border-radius: 24px;
+      max-width: min(560px, calc(100vw - 30px));
+      box-shadow: 0 24px 90px rgba(0,0,0,.28);
+      padding: 0;
+      background: white;
+      color: var(--ink);
+    }
+
+    dialog::backdrop { background: rgba(25,28,35,.38); backdrop-filter: blur(5px); }
+
+    .dialog-inner { padding: 18px; }
+
+    .dialog-title { margin: 0 0 8px; }
+
+
+    .time-pick-wrap {
+      display: grid;
+      grid-template-columns: 1fr 48px;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .time-pick-wrap input[readonly] {
+      background: rgba(255,255,255,.92);
+      cursor: pointer;
+    }
+
+    .time-pick-btn {
+      border-radius: 14px;
+      background: rgba(36,48,68,.06);
+      border: 1px solid rgba(36,48,68,.14);
+      color: var(--ink);
+      font-weight: 950;
+      font-size: 1.12rem;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 8px 18px rgba(30,30,30,.05);
+    }
+
+    .time-pick-btn:hover { background: rgba(255,159,67,.16); }
+
+    .time-picker-dialog { max-width: min(460px, calc(100vw - 30px)); }
+
+    .time-picker-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+      margin-bottom: 10px;
+    }
+
+    .time-picker-value {
+      display: inline-flex;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,159,67,.15);
+      color: #8a5315;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .clock-face {
+      position: relative;
+      width: min(310px, calc(100vw - 86px));
+      aspect-ratio: 1;
+      margin: 10px auto 6px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 50% 50%, white 0 17%, transparent 18%),
+        radial-gradient(circle at 50% 50%, rgba(255,159,67,.18), rgba(85,199,243,.12));
+      border: 1px solid rgba(36,48,68,.12);
+      box-shadow: inset 0 0 0 10px rgba(255,255,255,.55), 0 14px 35px rgba(30,30,30,.08);
+    }
+
+    .clock-choice {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 38px;
+      height: 38px;
+      margin: -19px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(36,48,68,.12);
+      color: var(--ink);
+      font-weight: 950;
+      font-size: .88rem;
+      transform: rotate(var(--deg)) translateY(var(--radius)) rotate(calc(var(--deg) * -1));
+      box-shadow: 0 8px 16px rgba(30,30,30,.06);
+    }
+
+    .clock-choice:hover,
+    .clock-choice.active {
+      background: linear-gradient(135deg, #ffb55b, #ffd166);
+      border-color: rgba(255,159,67,.42);
+    }
+
+    .clock-center {
+      position: absolute;
+      inset: 38% 25%;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: var(--muted);
+      font-weight: 900;
+      line-height: 1.35;
+      pointer-events: none;
+    }
+
+    .minute-nudge {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .wage-note {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(139,209,124,.16);
+      color: #327039;
+      font-weight: 900;
+      font-size: .78rem;
+    }
+
+    .wage-note.salary {
+      background: rgba(85,199,243,.14);
+      color: #176d92;
+    }
+
+    .wage-note.profit {
+      background: rgba(139,209,124,.18);
+      color: #327039;
+    }
+
+    .wage-note.loss {
+      background: rgba(231,95,101,.13);
+      color: #a64045;
+    }
+
+    .wage-note.neutral {
+      background: rgba(36,48,68,.08);
+      color: var(--muted);
+    }
+
+    .wage-help {
+      margin-top: 8px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.66);
+      border: 1px dashed rgba(36,48,68,.14);
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: .88rem;
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .pill-select {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill-select button {
+      border-radius: 999px;
+      padding: 8px 10px;
+      background: rgba(36,48,68,.06);
+      color: var(--ink);
+      font-weight: 850;
+    }
+
+    .pill-select button.active { background: rgba(255,159,67,.25); }
+
+    .undo-helper {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.66);
+      border: 1px dashed rgba(36,48,68,.18);
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: .9rem;
+    }
+
+    .undo-helper strong { color: var(--ink); }
+
+    .undo-helper[hidden] { display: none !important; }
+
+    .toast button {
+      margin-top: 8px;
+      border: 1px solid rgba(255,255,255,.38);
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: rgba(255,255,255,.16);
+      color: white;
+      font-weight: 850;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: rgba(36,48,68,.08);
+      border: 1px solid rgba(36,48,68,.1);
+      border-radius: 8px;
+      padding: 1px 6px;
+      font-size: .85em;
+    }
+
+
+
+    /* Dream Hourglass：よろず手帳に合わせた砂時計ログページ */
+    .dh-wrap {
+      display: grid;
+      gap: 16px;
+    }
+
+    .dh-hero {
+      position: relative;
+      overflow: hidden;
+      border-radius: 28px;
+      padding: 20px;
+      background: linear-gradient(135deg, rgba(255,159,67,.16), rgba(85,199,243,.12), rgba(255,255,255,.78));
+      border: 1px solid rgba(36,48,68,.10);
+      box-shadow: 0 12px 34px rgba(44, 32, 12, .08);
+    }
+
+    .dh-hero::after {
+      content: "";
+      position: absolute;
+      right: -38px;
+      bottom: -52px;
+      width: 170px;
+      height: 170px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,209,102,.45), transparent 64%);
+      pointer-events: none;
+    }
+
+    .dh-hero h2 { margin-bottom: 8px; }
+    .dh-hero > * { position: relative; z-index: 1; }
+
+    .dh-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .dh-card {
+      border-radius: 24px;
+      border: 1px solid rgba(36,48,68,.10);
+      background: rgba(255,255,255,.76);
+      box-shadow: 0 10px 26px rgba(30,30,30,.045);
+      padding: 14px;
+      min-width: 0;
+    }
+
+    .dh-card-title {
+      margin: 0 0 8px;
+      font-size: .92rem;
+      color: var(--muted);
+      font-weight: 950;
+      letter-spacing: .02em;
+    }
+
+    .dh-big {
+      font-size: clamp(1.25rem, 3vw, 2.05rem);
+      font-weight: 950;
+      line-height: 1.2;
+    }
+
+    .dh-timer-card {
+      display: grid;
+      gap: 14px;
+      text-align: center;
+      background: linear-gradient(145deg, rgba(255,255,255,.9), rgba(255,236,204,.58));
+    }
+
+    .dh-hourglass {
+      --dh-top: 1;
+      --dh-bottom: .16;
+      --dh-stream: 0;
+      width: min(210px, 58vw);
+      aspect-ratio: 3 / 4;
+      margin: 4px auto 0;
+      position: relative;
+      border-left: 6px solid rgba(255,159,67,.42);
+      border-right: 6px solid rgba(85,199,243,.32);
+      border-radius: 20px;
+      filter: drop-shadow(0 16px 28px rgba(44,32,12,.11));
+    }
+
+    .dh-hourglass::before,
+    .dh-hourglass::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 88%;
+      height: 14px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #ffb55b, #ffd166, #55c7f3);
+      box-shadow: inset 0 0 0 1px rgba(36,48,68,.10);
+    }
+
+    .dh-hourglass::before { top: 0; }
+    .dh-hourglass::after { bottom: 0; }
+
+    .dh-glass {
+      position: absolute;
+      inset: 18px 12px;
+      clip-path: polygon(0 0,100% 0,55% 49%,100% 100%,0 100%,45% 49%);
+      background: rgba(255,255,255,.35);
+      border: 1px solid rgba(36,48,68,.10);
+    }
+
+    .dh-sand-top,
+    .dh-sand-bottom,
+    .dh-sand-stream {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+
+    .dh-sand-top {
+      top: 22px;
+      width: 70%;
+      height: 34%;
+      clip-path: polygon(0 0,100% 0,56% 100%,44% 100%);
+      background: linear-gradient(180deg, #ffd166, #ffb55b, #ff8b3d);
+      opacity: var(--dh-top);
+      transition: opacity .28s ease;
+    }
+
+    .dh-sand-bottom {
+      bottom: 22px;
+      width: 70%;
+      height: 34%;
+      clip-path: polygon(44% 0,56% 0,100% 100%,0 100%);
+      background: linear-gradient(180deg, #ffe0a3, #ffb55b, #e58a3d);
+      opacity: var(--dh-bottom);
+      transition: opacity .28s ease;
+    }
+
+    .dh-sand-stream {
+      top: 50%;
+      width: 4px;
+      height: 30%;
+      background: linear-gradient(180deg, rgba(255,159,67,.92), rgba(255,159,67,0));
+      transform: translate(-50%, -9%);
+      opacity: var(--dh-stream);
+      border-radius: 999px;
+    }
+
+    .dh-display {
+      margin: 0;
+      font-size: clamp(3.3rem, 9vw, 6rem);
+      font-weight: 950;
+      line-height: 1;
+      letter-spacing: -.05em;
+    }
+
+    .dh-display.done {
+      color: var(--danger);
+      animation: dhBlink .86s ease-in-out infinite alternate;
+    }
+
+    @keyframes dhBlink { from { opacity: 1; } to { opacity: .34; } }
+
+    .dh-mode-row {
+      display: inline-flex;
+      gap: 6px;
+      padding: 5px;
+      margin: 0 auto;
+      border-radius: 999px;
+      background: rgba(36,48,68,.06);
+      border: 1px solid rgba(36,48,68,.10);
+    }
+
+    .dh-mode-btn {
+      border-radius: 999px;
+      padding: 8px 12px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      font-weight: 950;
+      font-size: .86rem;
+      transition: background .16s ease, transform .16s ease;
+    }
+
+    .dh-mode-btn:hover { transform: translateY(-1px); background: rgba(255,159,67,.10); }
+    .dh-mode-btn.active { background: #fff; color: var(--ink); border-color: rgba(255,159,67,.28); box-shadow: 0 8px 18px rgba(44,32,12,.08); }
+
+    .dh-elapsed-note {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: fit-content;
+      margin: -4px auto 0;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(85,199,243,.10);
+      color: #176d92;
+      font-weight: 900;
+      font-size: .86rem;
+    }
+
+    .dh-timer-card.is-countup .dh-countdown-only { display: none; }
+
+    .dh-tag-row,
+    .dh-actions,
+    .dh-presets,
+    .dh-save-row,
+    .dh-sound-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dh-chip {
+      border-radius: 999px;
+      padding: 7px 10px;
+      border: 1px solid rgba(36,48,68,.12);
+      background: rgba(255,255,255,.7);
+      color: var(--muted);
+      font-weight: 900;
+      font-size: .84rem;
+      transition: background .16s ease, transform .16s ease;
+    }
+
+    .dh-chip:hover { transform: translateY(-1px); background: rgba(255,159,67,.12); }
+    .dh-chip.active { background: linear-gradient(135deg, rgba(255,159,67,.24), rgba(85,199,243,.16)); color: var(--ink); }
+
+    .dh-remove {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      border: 1px solid rgba(36,48,68,.10);
+      background: rgba(255,255,255,.56);
+      color: var(--muted);
+      font-weight: 950;
+    }
+
+    .dh-remove:hover { color: #a83338; background: #fff1f1; }
+
+    .dh-input-inline {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .dh-input-inline input { max-width: 240px; }
+
+    .dh-time-inputs {
+      display: flex;
+      justify-content: center;
+      align-items: end;
+      gap: 8px;
+    }
+
+    .dh-time-num {
+      width: 82px;
+      text-align: center;
+      font-size: 1.55rem;
+      font-weight: 950;
+      padding: 8px 10px;
+    }
+
+    .dh-colon {
+      font-size: 1.6rem;
+      font-weight: 950;
+      color: var(--muted);
+      padding-bottom: 13px;
+    }
+
+    .dh-bottle-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+      gap: 12px;
+    }
+
+    .dh-bottle {
+      --fill: 0%;
+      --delay: 0ms;
+      min-height: 226px;
+      display: grid;
+      justify-items: center;
+      align-content: start;
+      gap: 8px;
+      border: 1px solid rgba(36,48,68,.10);
+      border-radius: 20px;
+      padding: 12px 10px;
+      background: radial-gradient(circle at 50% 0%, rgba(255,209,102,.18), rgba(255,255,255,.7));
+    }
+
+    .dh-bottle.is-top { border-color: rgba(255,159,67,.48); box-shadow: 0 10px 24px rgba(255,159,67,.12); }
+
+    .dh-bottle-visual {
+      width: 76px;
+      height: 130px;
+      position: relative;
+      border: 2px solid rgba(36,48,68,.18);
+      border-top: 0;
+      border-radius: 18px 18px 25px 25px;
+      background: linear-gradient(90deg, rgba(255,255,255,.72), rgba(255,255,255,.25));
+      overflow: hidden;
+      box-shadow: inset 0 0 18px rgba(255,255,255,.18), 0 10px 24px rgba(0,0,0,.07);
+    }
+
+    .dh-bottle-visual::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: -18px;
+      transform: translateX(-50%);
+      width: 36px;
+      height: 25px;
+      border: 2px solid rgba(36,48,68,.18);
+      border-bottom: 0;
+      border-radius: 10px 10px 4px 4px;
+      background: rgba(255,255,255,.42);
+      z-index: 3;
+    }
+
+    .dh-bottle-fill {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: var(--fill);
+      min-height: 2px;
+      background:
+        radial-gradient(circle at 18% 20%, rgba(255,255,255,.64) 0 1px, transparent 1.4px),
+        radial-gradient(circle at 54% 35%, rgba(255,255,255,.42) 0 1px, transparent 1.4px),
+        linear-gradient(180deg, #ffd166, #ffb55b 72%, #ff8b3d);
+      background-size: 16px 16px, 20px 20px, 100% 100%;
+      animation: dhBottleRise .68s cubic-bezier(.2,.8,.22,1) both;
+      animation-delay: var(--delay);
+      transition: height .45s ease;
+    }
+
+    .dh-bottle-fill::before {
+      content: "";
+      position: absolute;
+      left: -12%;
+      top: -9px;
+      width: 124%;
+      height: 22px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at 50% 60%, rgba(255,255,255,.56), rgba(255,159,67,.55) 60%, rgba(255,159,67,0) 68%);
+    }
+
+    @keyframes dhBottleRise { from { height: 0; filter: brightness(1.08); } to { height: var(--fill); filter: brightness(1); } }
+
+    .dh-bottle-name { font-weight: 950; text-align: center; }
+    .dh-bottle-time { font-size: 1.08rem; font-weight: 950; }
+    .dh-bottle-note, .dh-bottle-percent { color: var(--muted); font-size: .8rem; text-align: center; line-height: 1.4; }
+
+    .dh-history-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 10px;
+      max-height: 420px;
+      overflow: auto;
+    }
+
+    .dh-history-item {
+      border: 1px solid rgba(36,48,68,.10);
+      border-radius: 18px;
+      padding: 12px;
+      background: rgba(255,255,255,.70);
+    }
+
+    .dh-history-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin: 8px 0;
+    }
+
+    .dh-history-tag {
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(85,199,243,.12);
+      color: #176d92;
+      font-weight: 900;
+      font-size: .78rem;
+    }
+
+    .dh-review-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      background: rgba(36,48,68,.34);
+      display: none;
+      place-items: center;
+      padding: 16px;
+    }
+
+    .dh-review-backdrop.open { display: grid; }
+
+    .dh-review-modal {
+      width: min(100%, 560px);
+      border-radius: 24px;
+      border: 1px solid rgba(36,48,68,.12);
+      background: linear-gradient(145deg, #fffdf8, #fff2dc);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .dh-review-modal h3 { margin: 0; font-size: 1.45rem; }
+
+
+    .quick-link-box {
+      margin-top: 10px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--line);
+      display: grid;
+      gap: 10px;
+    }
+
+    .quick-link-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .quick-link {
+      display: grid;
+      gap: 4px;
+      align-content: center;
+      min-height: 68px;
+      padding: 12px;
+      border-radius: 18px;
+      border: 1px solid rgba(36,48,68,.12);
+      background: linear-gradient(135deg, rgba(255,255,255,.84), rgba(255,236,204,.58));
+      color: var(--ink);
+      text-decoration: none;
+      transition: .16s ease;
+    }
+
+    .quick-link:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(44,32,12,.08);
+      border-color: rgba(255,159,67,.34);
+    }
+
+    .quick-link strong { font-size: .96rem; }
+    .quick-link span { font-size: .82rem; color: var(--muted); }
+
+    .brain-dump-panel {
+      margin: 14px 0;
+      padding: 14px;
+      border-radius: 22px;
+      border: 1px solid rgba(36,48,68,.10);
+      background: linear-gradient(135deg, rgba(85,199,243,.10), rgba(255,209,102,.12));
+      display: grid;
+      gap: 10px;
+    }
+
+    .brain-dump-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .brain-dump-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 8px;
+      max-height: 240px;
+      overflow: auto;
+    }
+
+    .brain-dump-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: start;
+      border: 1px solid rgba(36,48,68,.10);
+      border-radius: 16px;
+      padding: 10px;
+      background: rgba(255,255,255,.70);
+    }
+
+    .brain-dump-text { white-space: pre-wrap; line-height: 1.55; }
+    .brain-dump-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+    .brain-dump-input-card { display: grid; gap: 12px; }
+
+    .wage-note {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(85,199,243,.14);
+      color: #176d92;
+      font-weight: 800;
+      font-size: .86rem;
+    }
+
+    .wage-note.salary { background: rgba(85,199,243,.14); color: #176d92; }
+    .wage-note.profit { background: rgba(139,209,124,.18); color: #327039; }
+    .wage-note.loss { background: rgba(231,95,101,.13); color: #a64045; }
+    .wage-note.neutral { background: rgba(36,48,68,.08); color: var(--muted); }
+
+    .external-note {
+      font-size: .82rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+
+    @media (max-width: 920px) {
+      .dh-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 560px) {
+      .dh-bottle-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .dh-bottle { min-height: 212px; }
+      .dh-bottle-visual { height: 118px; }
+      .dh-time-num { width: 72px; }
+    }
+
+    @media (max-width: 920px) {
+      .hero-row, .layout, .timer-board { grid-template-columns: 1fr; }
+      .side { position: static; }
+      .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .reward-grid { grid-template-columns: 1fr; }
+      .task-card { grid-template-columns: 1fr; }
+      .task-actions { grid-column: 1 / -1; justify-content: flex-start; min-width: 0; }
+    }
+
+    @media (max-width: 560px) {
+      .app { width: min(100% - 18px, 1180px); padding-top: 10px; }
+      .hero { padding: 18px; border-radius: 24px; }
+      .stats-grid, .form-grid, .mini-grid { grid-template-columns: 1fr; }
+      .progress-shell { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+      .toolbar { align-items: stretch; }
+      .toolbar-actions, .hero-actions { width: 100%; }
+      .btn { flex: 1 1 auto; }
+      .weekly { gap: 6px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="hero">
+      <div class="hero-row">
+        <section>
+          <span class="eyebrow">🎮 時間を守る、じゃなくて時間と組む</span>
+          <h1>よろずミッション手帳</h1>
+          <p class="lead">
+            「一日を全部きっちり守れ」と言われると、そりゃ嫌になる。だからこの手帳は、予定を命令ではなくミッション候補として扱う。完璧より、今日を動かした証拠を残すためのサイトだ。
+          </p>
+          <div class="hero-actions">
+            <button class="btn primary" data-tab-go="add">＋ 今日のミッションを追加</button>
+            <button class="btn blue" id="startQuickPomodoro">⏱ 集中を始める</button>
+            <button class="btn green" id="sealDayBtn">🏁 今日をしめる</button>
+            <button class="btn" id="undoLastBtn" disabled>↩ 直前操作を取り消す</button>
+          </div>
+          <div class="undo-helper" id="undoHelper" hidden>
+            <span id="undoHelperText">直前操作を戻せる。</span>
+            <button class="btn small" id="undoHelperBtn" type="button">取り消す</button>
+          </div>
+        </section>
+
+        <aside class="mission-card" aria-label="今日のミッション概要">
+          <p class="mission-title">今日のミッション</p>
+          <div class="mission-main">
+            <div>
+              <div class="mission-number"><span id="missionDone">0</span>/<span id="missionGoal">3</span></div>
+              <p class="mission-copy" id="missionCopy">まずは1個。幕開けは小さくていい。</p>
+            </div>
+            <div class="progress-ring" id="heroRing"><span id="heroPercent">0%</span></div>
+          </div>
+          <div class="bar" aria-hidden="true"><i id="heroBar"></i></div>
+          <div class="quick-link-box" aria-label="Googleショートカット">
+            <p class="mission-title">Googleショートカット</p>
+            <div class="quick-link-grid">
+              <a class="quick-link" href="https://calendar.google.com/calendar/u/0/r" target="_blank" rel="noopener noreferrer"><strong>📅 カレンダー</strong><span>予定を確認</span></a>
+              <a class="quick-link" href="https://mail.google.com/mail/u/0/#inbox" target="_blank" rel="noopener noreferrer"><strong>✉ Gmail</strong><span>受信箱を開く</span></a>
+            </div>
+            <p class="external-note">個人のGoogleカレンダー/Gmailは、このローカルHTML内では安全制限で埋め込みではなくリンク表示にしています。</p>
+          </div>
+        </aside>
+      </div>
+
+      <div class="stats-grid" aria-label="ステータス">
+        <div class="stat"><span>今日の時間収支</span><strong id="totalWageStat">0円</strong><small id="wageBreakdown">給与0円・利益0円・損失0円</small><span id="pointStat" hidden>0</span></div>
+        <div class="stat"><span>連続ログ日数</span><strong><span id="streakStat">0</span> 日</strong></div>
+        <div class="stat"><span>今日の達成率</span><strong><span id="rateStat">0</span>%</strong></div>
+        <div class="stat"><span>今日の予定数</span><strong><span id="todayTotalStat">0</span> 件</strong></div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="side">
+        <section class="panel panel-pad today-box">
+          <h2>📅 日付</h2>
+          <div class="date-row">
+            <input type="date" id="selectedDate" />
+            <button class="btn small" id="todayBtn">今日</button>
+          </div>
+          <div class="progress-shell">
+            <div class="progress-ring" id="sideRing"><span id="sidePercent">0%</span></div>
+            <div>
+              <div class="bar"><i id="sideBar"></i></div>
+              <p class="soft" id="sideProgressText">予定はまだ空。空白も作戦のうちだ。</p>
+            </div>
+          </div>
+        </section>
+
+        <nav class="panel panel-pad nav-tabs" aria-label="画面切り替え">
+          <button class="tab-btn active" data-tab="today">🗡 今日のミッション</button>
+          <button class="tab-btn" data-tab="add">＋ 追加・編集</button>
+          <button class="tab-btn" data-tab="hourglass">⌛ 砂時計ログ</button>
+          <button class="tab-btn" data-tab="history">📈 履歴</button>
+          <button class="tab-btn" data-tab="settings">⚙ 設定・使い方</button>
+        </nav>
+
+        <section class="panel panel-pad">
+          <h3>🧠 合言葉</h3>
+          <p class="soft" id="coachLine">予定は牢屋じゃねぇ。今日の自分を助ける地図だ。</p>
+        </section>
+      </aside>
+
+      <main class="main">
+        <section class="panel panel-pad view active" id="view-today">
+          <div class="toolbar">
+            <div>
+              <h2>今日のミッション</h2>
+              <p class="soft" id="todaySub">守れなかった予定は、失敗じゃなくて再配置候補。</p>
+            </div>
+            <div class="toolbar-actions">
+              <button class="btn blue" id="notifyBtn">🔔 通知を使う</button>
+              <button class="btn ghost" id="sortBtn">並び替え：時間順</button>
+              <button class="btn danger" id="clearDoneBtn">完了済みを隠す</button>
+            </div>
+          </div>
+          <section class="brain-dump-panel" aria-label="急に思い浮かんだことの確認欄">
+            <div class="brain-dump-head">
+              <div>
+                <h3 style="margin:0">🧠 頭から出すメモ</h3>
+                <p class="soft" style="margin:.35rem 0 0">砂時計ログで頭から出した内容を、ここで確認する。必要ならミッション化して予定に変える。</p>
+              </div>
+              <div class="toolbar-actions">
+                <button class="btn blue small" type="button" data-tab-go="hourglass">入力欄へ</button>
+                <button class="btn danger small" id="brainDumpClearBtn" type="button">メモ全削除</button>
+              </div>
+            </div>
+            <ul class="brain-dump-list" id="brainDumpList"></ul>
+          </section>
+
+          <div class="task-list" id="taskList"></div>
+        </section>
+
+        <section class="panel panel-pad view" id="view-add">
+          <div class="toolbar">
+            <div>
+              <h2 id="formTitle">ミッション追加</h2>
+              <p class="soft">「絶対やれ」ではなく、「着手しやすい形」にして登録する。重い荷物は小分けにしろ、引っ越し屋じゃねぇんだから。</p>
+            </div>
+            <button class="btn ghost" id="resetFormBtn">フォームを空にする</button>
+          </div>
+
+          <form id="taskForm" class="form-grid">
+            <input type="hidden" id="taskId" />
+            <div class="field full">
+              <label for="taskTitle">ミッション名</label>
+              <input id="taskTitle" required placeholder="例：SQ3Rで1章だけ読む / 洗濯物を回す" />
+            </div>
+
+            <div class="field">
+              <label for="taskDate">日付</label>
+              <input type="date" id="taskDate" required />
+            </div>
+            <div class="field">
+              <label for="taskStart">開始目安</label>
+              <div class="time-pick-wrap">
+                <input type="text" id="taskStart" readonly placeholder="未設定" inputmode="none" />
+                <button class="time-pick-btn" type="button" data-time-target="taskStart" aria-label="開始目安を時計で設定">◷</button>
+              </div>
+            </div>
+            <div class="field">
+              <label for="taskEnd">終了目安</label>
+              <div class="time-pick-wrap">
+                <input type="text" id="taskEnd" readonly placeholder="未設定" inputmode="none" />
+                <button class="time-pick-btn" type="button" data-time-target="taskEnd" aria-label="終了目安を時計で設定">◷</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="taskMode">予定の縛り具合</label>
+              <select id="taskMode">
+                <option value="soft">ゆる固定：時間になったら思い出す</option>
+                <option value="must">固定：この時間にやる</option>
+                <option value="free">自由：今日のどこかでやる</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="taskEnergy">重さ</label>
+              <select id="taskEnergy">
+                <option value="light">軽い：5〜15分</option>
+                <option value="normal">普通：15〜45分</option>
+                <option value="heavy">重い：分割推奨</option>
+              </select>
+            </div>
+
+            <div class="field full">
+              <label for="taskWageType">時間収支の見方</label>
+              <select id="taskWageType">
+                <option value="salary">給与：必要な作業・努力できた時間として受け取る</option>
+                <option value="profit">利益：有意義・未来投資・回復として増やす</option>
+                <option value="loss">損失：減らしたい／時間がかかりすぎた行動として見る</option>
+              </select>
+              <div class="wage-help">同じ15分でも、意味づけは違う。鍛錬なら給与、未来につながるなら利益、減らしたい行動なら損失として記録する。</div>
+            </div>
+
+            <div class="field">
+              <label for="taskMiniStart">最初の一手</label>
+              <input id="taskMiniStart" placeholder="例：本を開く / 机に置く / 5行読む" />
+            </div>
+
+            <div class="field full">
+              <label for="taskNote">メモ</label>
+              <textarea id="taskNote" placeholder="嫌になりそうな理由、終わったら得られること、無理ならどこまででOKかを書く"></textarea>
+            </div>
+
+            <div class="field full">
+              <button class="btn primary" type="submit" id="saveTaskBtn">ミッションを保存</button>
+            </div>
+          </form>
+
+          <div class="hint-box" style="margin-top:14px">
+            <strong>おすすめ入力法</strong>
+            <span>タスク名は「大掃除」より「床に落ちている服を5枚だけ拾う」。時間は「命令」ではなく「自分に出す合図」。この違いがでかい。</span>
+          </div>
+        </section>
+
+        <section class="panel panel-pad view" id="view-timer" hidden>
+          <div class="toolbar">
+            <div>
+              <h2>集中タイマー</h2>
+              <p class="soft">25分集中＋5分休憩。しんどい時は10分でもいい。続けるには、まず逃げ道を設計しろ。</p>
+            </div>
+          </div>
+
+          <div class="timer-board">
+            <section class="timer-face">
+              <div>
+                <span class="timer-mode" id="timerModeLabel">集中モード</span>
+                <div class="timer-time" id="timerTime">25:00</div>
+                <p class="soft" id="timerTaskLabel">タスク未選択。今は手ぶらでOK。</p>
+                <div class="toolbar-actions" style="justify-content:center;margin-top:12px">
+                  <button class="btn primary" id="timerStartBtn">開始</button>
+                  <button class="btn" id="timerPauseBtn">一時停止</button>
+                  <button class="btn ghost" id="timerResetBtn">リセット</button>
+                </div>
+              </div>
+            </section>
+
+            <section class="panel-pad" style="padding:0">
+              <div class="form-grid">
+                <div class="field">
+                  <label for="focusMinutes">集中 分</label>
+                  <input type="number" id="focusMinutes" min="1" max="120" value="25" />
+                </div>
+                <div class="field">
+                  <label for="breakMinutes">休憩 分</label>
+                  <input type="number" id="breakMinutes" min="1" max="60" value="5" />
+                </div>
+                <div class="field full">
+                  <label for="timerTaskSelect">紐づけるミッション</label>
+                  <select id="timerTaskSelect"></select>
+                </div>
+              </div>
+
+              <div class="hint-box" style="margin-top:14px">
+                <strong>タイマーの使い方</strong>
+                <span>気が重いタスクは「完了」じゃなく「25分着手」を勝利条件にする。ラスボス倒せなくても、部屋に入った時点で偉いんだよ。</span>
+                <button class="btn blue small" type="button" data-tab-go="hourglass">砂時計ログで集中を記録する</button>
+              </div>
+            </section>
+          </div>
+        </section>
+
+
+
+        <section class="panel panel-pad view" id="view-hourglass">
+          <div class="dh-wrap">
+            <header class="dh-hero">
+              <span class="eyebrow">⌛ Dream Hourglass</span>
+              <h2>砂時計ログ</h2>
+              <p class="soft">時間を守れなかったかどうかより、「今この砂を何に使ったか」を残すページ。カウントダウンでもカウントアップでも、使った時間を小瓶に分けて見える化する。</p>
+            </header>
+
+            <section class="dh-grid">
+              <article class="dh-card">
+                <p class="dh-card-title">現在日時</p>
+                <div class="dh-big" id="dhNowDate">----</div>
+                <div class="dh-big" id="dhNowTime">--:--:--</div>
+                <p class="soft" id="dhDayText">今日の残り時間を計算中...</p>
+              </article>
+              <article class="dh-card">
+                <p class="dh-card-title">人生の砂</p>
+                <div class="form-grid">
+                  <div class="field full">
+                    <label for="dhBirthDate">生年月日</label>
+                    <input id="dhBirthDate" type="date" />
+                  </div>
+                </div>
+                <p class="soft" id="dhAgeText">生年月日を入れると、今の年齢と生まれてから経った時間を表示します。</p>
+                <p class="soft" id="dhRemainingText">平均寿命を仮定した残り時間を表示します。</p>
+              </article>
+            </section>
+
+            <section class="dh-card brain-dump-input-card" aria-label="頭から出すメモ入力欄">
+              <div class="brain-dump-head">
+                <div>
+                  <p class="dh-card-title">🧠 頭から出すメモ入力</p>
+                  <p class="soft" style="margin:.35rem 0 0">急に思い浮かんだやること・アイデアを、計測の前後でここに出す。確認とミッション化は「今日のミッション」画面のメモ欄に集約する。</p>
+                </div>
+                <button class="btn blue small" type="button" data-tab-go="today">確認欄へ</button>
+              </div>
+              <textarea id="brainDumpText" placeholder="例：あとで〇〇を調べる／面接で聞く質問を考える／買うものを思い出した"></textarea>
+              <div class="toolbar-actions">
+                <button class="btn primary" id="brainDumpAddBtn" type="button">頭から出す</button>
+              </div>
+            </section>
+
+            <section class="dh-card dh-timer-card" id="dhTimerCard">
+              <div class="dh-hourglass" id="dhHourglass" aria-hidden="true">
+                <div class="dh-glass"></div>
+                <div class="dh-sand-top"></div>
+                <div class="dh-sand-stream"></div>
+                <div class="dh-sand-bottom"></div>
+              </div>
+              <div class="dh-mode-row" role="group" aria-label="砂時計ログの計測モード">
+                <button class="dh-mode-btn active" type="button" data-dh-mode="down">カウントダウン</button>
+                <button class="dh-mode-btn" type="button" data-dh-mode="up">カウントアップ</button>
+              </div>
+              <p id="dhDisplay" class="dh-display">05:00</p>
+              <p id="dhElapsedNote" class="dh-elapsed-note">記録予定：5分</p>
+              <p id="dhStatus" class="soft">今から何をするか決めてから、砂を落とそう。</p>
+
+              <div class="form-grid">
+                <div class="field full">
+                  <label for="dhTaskNote">今、何に時間を使う？</label>
+                  <textarea id="dhTaskNote" placeholder="例：SQ3Rで1章だけ読む、求人を整理する、休憩をとる、胸トレをする"></textarea>
+                </div>
+                <div class="field full">
+                  <label for="dhWageType">この時間の見方</label>
+                  <select id="dhWageType">
+                    <option value="salary">給与：努力・必要作業として受け取る</option>
+                    <option value="profit">利益：有意義・未来投資・回復として増やす</option>
+                    <option value="loss">損失：減らしたい／時間がかかりすぎた行動として見る</option>
+                  </select>
+                  <div class="wage-help">途中終了でも、ここで選んだ見方で履歴に入る。時間の長さだけでなく、意味づけも記録する。</div>
+                </div>
+              </div>
+
+              <div>
+                <p class="dh-card-title">目的タグ</p>
+                <div class="dh-tag-row" id="dhTagRow"></div>
+                <div class="dh-input-inline" style="margin-top:10px">
+                  <input id="dhCustomTagInput" type="text" maxlength="14" placeholder="例：読書・運動・日記" />
+                  <button class="btn small" id="dhAddTagBtn" type="button">タグ追加</button>
+                </div>
+                <p class="soft">追加したタグは、下の小瓶にも自動で反映される。</p>
+              </div>
+
+              <div class="dh-sound-row">
+                <span class="tag">Brown Noise</span>
+                <input id="dhNoiseVolume" type="range" min="0" max="100" value="20" style="max-width:180px" />
+                <span class="soft">Start時だけ再生</span>
+              </div>
+
+              <div class="dh-countdown-only">
+                <div class="dh-time-inputs">
+                  <div class="field" style="max-width:90px"><label for="dhMinutes">分</label><input id="dhMinutes" class="dh-time-num" type="number" min="0" max="99" value="5" inputmode="numeric" /></div>
+                  <span class="dh-colon">:</span>
+                  <div class="field" style="max-width:90px"><label for="dhSeconds">秒</label><input id="dhSeconds" class="dh-time-num" type="number" min="0" max="59" value="0" inputmode="numeric" /></div>
+                </div>
+
+                <div class="dh-presets">
+                  <button class="btn small dh-preset active" type="button" data-dh-seconds="300">5分</button>
+                  <button class="btn small dh-preset" type="button" data-dh-seconds="600">10分</button>
+                  <button class="btn small dh-preset" type="button" data-dh-seconds="1500" data-dh-focus="true">集中</button>
+                  <button class="btn small dh-preset" type="button" data-dh-seconds="2700">45分</button>
+                  <button class="btn small dh-preset" type="button" data-dh-seconds="3600">60分</button>
+                </div>
+              </div>
+
+              <div class="dh-actions">
+                <button id="dhResetBtn" class="btn ghost" type="button">Reset</button>
+                <button id="dhStartBtn" class="btn primary" type="button">Start</button>
+                <button id="dhFinishBtn" class="btn blue" type="button" disabled>終了して記録</button>
+              </div>
+              <p class="soft">カウントダウンは最後まで落ちたら自動記録。途中終了でも「終了して記録」を押せば、その時点までの実測時間を小瓶へ移す。カウントアップは止めた時点の時間を記録する。</p>
+            </section>
+
+            <section class="dh-card">
+              <div class="toolbar">
+                <div>
+                  <h3>Daily Sand Bottles</h3>
+                  <p id="dhBottleSummary" class="soft">今日の砂を集計中...</p>
+                </div>
+                <button id="dhRebuildBottlesBtn" class="btn small" type="button">更新</button>
+              </div>
+              <div class="hint-box" style="margin-bottom:12px">
+                <strong>満タン基準</strong>
+                <span>1日＝24時間。タグが複数ある場合は、時間をタグ数で等分する。タグを消すと、そのタグの今日の砂は未分類に移る。</span>
+              </div>
+              <div id="dhBottleGrid" class="dh-bottle-grid"></div>
+            </section>
+
+            <section class="dh-grid">
+              <article class="dh-card">
+                <p class="dh-card-title">セーブとロード</p>
+                <p class="soft">砂時計ログだけをテキスト形式で保存・読み込みできる。よろずミッション本体のデータとは別管理。</p>
+                <div class="dh-save-row">
+                  <button id="dhExportTodayBtn" class="btn blue" type="button">今日を保存</button>
+                  <button id="dhImportSaveBtn" class="btn" type="button">読み込み</button>
+                  <input id="dhFileLoader" type="file" hidden accept=".txt,.json,text/plain,application/json" />
+                </div>
+              </article>
+              <article class="dh-card">
+                <div class="toolbar">
+                  <div>
+                    <p class="dh-card-title">Timer History</p>
+                    <p class="soft">砂が最後まで落ちた記録と、途中終了・カウントアップ完了の記録。千葉県最低賃金を基準に「給与・利益・損失」の時間収支も表示します。</p>
+                  </div>
+                  <button id="dhClearHistoryBtn" class="btn danger small" type="button">全削除</button>
+                </div>
+                <ul id="dhHistoryList" class="dh-history-list"></ul>
+              </article>
+            </section>
+          </div>
+        </section>
+
+        <section class="panel panel-pad view" id="view-history">
+          <div class="toolbar">
+            <div>
+              <h2>履歴・見える化</h2>
+              <p class="soft">過去の自分が積んだ石を見ろ。小さくても道になってる。</p>
+            </div>
+          </div>
+
+          <h3>今週の達成グラフ</h3>
+          <div class="weekly" id="weeklyChart" aria-label="直近7日間の達成率グラフ"></div>
+
+          <h3 style="margin-top:18px">達成したことリスト</h3>
+          <div class="history-list" id="historyList"></div>
+        </section>
+
+        <section class="panel panel-pad view" id="view-settings">
+          <div class="toolbar">
+            <div>
+              <h2>設定・使い方</h2>
+              <p class="soft">ここは調整室。使いにくい仕組みは、根性じゃなく設定で直す。</p>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="goalInput">今日のミッション基準数</label>
+              <input type="number" id="goalInput" min="1" max="12" value="3" />
+            </div>
+            <div class="field">
+              <label for="soundSelect">効果音</label>
+              <select id="soundSelect">
+                <option value="on">オン</option>
+                <option value="off">オフ</option>
+              </select>
+            </div>
+            <div class="field full">
+              <button class="btn primary" id="saveSettingsBtn">設定を保存</button>
+            </div>
+          </div>
+
+          <details class="manual" open style="margin-top:14px">
+            <summary>操作マニュアル</summary>
+            <div class="manual-content">
+              <ul>
+                <li><strong>今日のミッション</strong>：登録した予定を確認し、終わったら「クリア」を押す。「砂時計へ転記」でログ欄へ移せる。</li>
+                <li><strong>追加・編集</strong>：予定は「固定」「ゆる固定」「自由」から選べる。嫌になりやすい予定は「ゆる固定」がおすすめ。</li>
+                <li><strong>頭から出すメモ</strong>：入力は砂時計ログ内で行い、確認・ミッション化は今日のミッション画面のメモ欄で行う。</li>
+                <li><strong>Googleショートカット</strong>：カレンダーとGmailを別タブで開ける。個人ページは埋め込みではなくリンク式。</li>
+                <li><strong>砂時計ログ</strong>：集中・休憩・勉強など、時間の使い道を小瓶で見える化する。履歴には予定時間をもとに、千葉県最低賃金ベースで「給与・利益・損失」に分けて表示する。</li>
+                <li><strong>今日をしめる</strong>：達成数に関係なく、今日のログとして記録できる。完璧主義の首輪を外すためのボタン。</li>
+                <li><strong>直前操作を取り消す</strong>：クリア、削除、今日をしめるなどの直前操作を1回だけ巻き戻せる。押し間違い用の保険。</li>
+              </ul>
+              <p>ショートカット：<span class="kbd">Ctrl</span> + <span class="kbd">Enter</span> でミッション保存。</p>
+            </div>
+          </details>
+
+          <details class="manual" style="margin-top:12px">
+            <summary>データ管理</summary>
+            <div class="manual-content">
+              <p>このサイトのデータはブラウザ内に保存される。別のPCや別ブラウザには自動共有されない。</p>
+              <div class="toolbar-actions">
+                <button class="btn blue" id="exportBtn">データを書き出す</button>
+                <label class="btn" for="importFile">データを読み込む</label>
+                <input type="file" id="importFile" accept="application/json" hidden />
+                <button class="btn danger" id="resetAllBtn">全データ削除</button>
+              </div>
+            </div>
+          </details>
+        </section>
+      </main>
+    </div>
+  </div>
+
+
+  <dialog id="timePickerDialog" class="time-picker-dialog">
+    <div class="dialog-inner">
+      <div class="time-picker-head">
+        <div>
+          <h3 class="dialog-title" id="timePickerTitle">時刻を設定</h3>
+          <p class="soft" id="timePickerStep">時間を選ぶ → 分を選ぶ</p>
+        </div>
+        <span class="time-picker-value" id="timePickerValue">--:--</span>
+      </div>
+      <div class="clock-face" id="analogClock" aria-label="アナログ時刻設定"></div>
+      <div class="minute-nudge" id="minuteNudge" hidden>
+        <button class="btn small" type="button" data-minute-nudge="-1">−1分</button>
+        <button class="btn small" type="button" data-minute-nudge="1">＋1分</button>
+      </div>
+      <div class="toolbar-actions" style="justify-content:space-between;margin-top:16px">
+        <button class="btn danger" type="button" id="timePickerClear">時刻を消す</button>
+        <div class="toolbar-actions">
+          <button class="btn ghost" type="button" id="timePickerBack">戻る</button>
+          <button class="btn primary" type="button" id="timePickerOk">決定</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="confirmDialog">
+    <div class="dialog-inner">
+      <h3 class="dialog-title" id="dialogTitle">確認</h3>
+      <p class="soft" id="dialogMessage">実行しますか？</p>
+      <div class="toolbar-actions" style="justify-content:flex-end;margin-top:16px">
+        <button class="btn ghost" id="dialogCancel">やめる</button>
+        <button class="btn primary" id="dialogOk">実行</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="toast-zone" id="toastZone" aria-live="polite" aria-atomic="true"></div>
+  <div class="confetti" id="confetti"></div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const STORAGE_KEY = 'yorozuMissionSchedule.v1';
+      const UNDO_KEY = 'yorozuMissionSchedule.undo.v1';
+      const pad = n => String(n).padStart(2, '0');
+      const todayKey = () => {
+        const d = new Date();
+        return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+      };
+      const dateLabel = key => {
+        const d = new Date(`${key}T00:00:00`);
+        return d.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric', weekday: 'short' });
+      };
+      const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
+      const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+
+      const defaultState = () => ({
+        selectedDate: todayKey(),
+        tasks: [],
+        brainDump: [],
+        rewards: [
+          { id: uid(), title: '好きな動画を30分見る', cost: 30, used: [] },
+          { id: uid(), title: '甘いもの休憩', cost: 40, used: [] },
+          { id: uid(), title: 'ゲーム・趣味を1時間', cost: 80, used: [] }
+        ],
+        history: {},
+        profile: {
+          points: 0,
+          streak: 0,
+          lastLoggedDate: '',
+          goal: 3,
+          sound: 'on',
+          sort: 'time',
+          hideDone: false,
+          notified: false
+        },
+        alarmed: {}
+      });
+
+      let state = loadState();
+      let undoRecord = loadUndoRecord();
+      let timer = {
+        mode: 'focus',
+        running: false,
+        remaining: 25 * 60,
+        intervalId: null,
+        taskId: ''
+      };
+
+      let timePicker = {
+        targetId: '',
+        phase: 'hour',
+        hour: 9,
+        minute: 0
+      };
+
+      const $ = selector => document.querySelector(selector);
+      const $$ = selector => Array.from(document.querySelectorAll(selector));
+
+
+      /* Dream Hourglass：砂時計ログページ */
+      const DH_STORAGE = {
+        history: 'yorozuMissionSchedule.dreamHourglass.history.v1',
+        birth: 'yorozuMissionSchedule.dreamHourglass.birth.v1',
+        draft: 'yorozuMissionSchedule.dreamHourglass.draft.v1',
+        tags: 'yorozuMissionSchedule.dreamHourglass.tags.v1',
+        catalog: 'yorozuMissionSchedule.dreamHourglass.catalog.v1'
+      };
+      const DH_AVG_LIFE_FEMALE_JP = 87.13;
+      const DH_YEAR_MS = 365.2425 * 24 * 60 * 60 * 1000;
+      const DH_DAY_MS = 24 * 60 * 60 * 1000;
+      const DH_DAY_SEC = 24 * 60 * 60;
+      const CHIBA_MIN_WAGE_YEN = 1140;
+      const DH_DEFAULT_TAGS = [
+        { tag: '休憩', label: '休憩', note: '回復に使った砂' },
+        { tag: '集中', label: '集中', note: '集中に使った砂' },
+        { tag: '勉強', label: '勉強', note: '知識に変えた砂' },
+        { tag: 'キャリア', label: 'キャリア', note: '未来の足場にした砂' },
+        { tag: '整理', label: '整理', note: '頭と環境を整えた砂' },
+        { tag: '家事', label: '家事', note: '生活を支えた砂' }
+      ];
+      const DH_UNCATEGORIZED = { tag: '未分類', label: '未分類', note: 'まだ旗を立てていない砂' };
+      let dhTimer = {
+        mode: 'down',
+        duration: 300000,
+        remain: 300000,
+        elapsed: 0,
+        baseElapsed: 0,
+        running: false,
+        done: false,
+        finishReason: '',
+        startedAt: 0,
+        baseRemain: 0,
+        currentStart: null,
+        saved: false,
+        intervalId: null,
+        currentDay: todayKey()
+      };
+      let dhState = {
+        history: dhLoadJSON(DH_STORAGE.history, []),
+        tagCatalog: dhLoadTagCatalog(),
+        selectedTags: dhLoadJSON(DH_STORAGE.tags, []),
+        pendingReview: null,
+        pendingRate: ''
+      };
+      let dhNoise = { ctx: null, master: null, source: null };
+
+      function dhLoadJSON(key, fallback) {
+        try {
+          const raw = localStorage.getItem(key);
+          return raw ? JSON.parse(raw) : fallback;
+        } catch (error) {
+          return fallback;
+        }
+      }
+
+      function dhSaveJSON(key, value) {
+        localStorage.setItem(key, JSON.stringify(value));
+      }
+
+      function dhNormalizeTag(value) {
+        return String(value ?? '').trim().replaceAll(' ', '').replaceAll('　', '').slice(0, 14);
+      }
+
+      function dhLoadTagCatalog() {
+        const saved = dhLoadJSON(DH_STORAGE.catalog, null);
+        if (Array.isArray(saved) && saved.length) {
+          return saved.map(item => {
+            const tag = dhNormalizeTag(item?.tag || item?.label || item);
+            if (!tag || tag === DH_UNCATEGORIZED.tag) return null;
+            return { tag, label: tag, note: item?.note || `${tag}に使った砂` };
+          }).filter(Boolean);
+        }
+        return DH_DEFAULT_TAGS.map(item => ({ ...item }));
+      }
+
+      function dhSaveTagCatalog() {
+        dhSaveJSON(DH_STORAGE.catalog, dhState.tagCatalog.map(theme => ({ tag: theme.tag, label: theme.label, note: theme.note })));
+      }
+
+      function dhGetThemes() {
+        return [...dhState.tagCatalog, DH_UNCATEGORIZED];
+      }
+
+      function dhFmtTime(ms) {
+        const sec = Math.ceil(Math.max(0, ms) / 1000);
+        const m = Math.floor(sec / 60);
+        const s = sec % 60;
+        return `${pad(m)}:${pad(s)}`;
+      }
+
+      function dhFmtDuration(sec) {
+        const safeSec = Math.max(0, Math.round(sec || 0));
+        const h = Math.floor(safeSec / 3600);
+        const m = Math.floor((safeSec % 3600) / 60);
+        const s = safeSec % 60;
+        if (h && m) return `${h}時間 ${m}分`;
+        if (h) return `${h}時間`;
+        if (m && s) return `${m}分 ${s}秒`;
+        if (m) return `${m}分`;
+        return `${s}秒`;
+      }
+
+      function dhFormatSpan(ms) {
+        let rest = Math.max(0, ms);
+        const years = Math.floor(rest / DH_YEAR_MS);
+        rest -= years * DH_YEAR_MS;
+        const days = Math.floor(rest / DH_DAY_MS);
+        rest -= days * DH_DAY_MS;
+        const hours = Math.floor(rest / (60 * 60 * 1000));
+        return `${years}年 ${days}日 ${hours}時間`;
+      }
+
+      function dhTodayKey(value = Date.now()) {
+        const d = new Date(value);
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+      }
+
+      function dhParseSeconds() {
+        const m = clamp(parseInt($('#dhMinutes')?.value, 10) || 0, 0, 99);
+        const s = clamp(parseInt($('#dhSeconds')?.value, 10) || 0, 0, 59);
+        return Math.max(1, m * 60 + s);
+      }
+
+      function dhSyncInputs(totalSec) {
+        const min = $('#dhMinutes');
+        const sec = $('#dhSeconds');
+        if (!min || !sec) return;
+        min.value = Math.floor(totalSec / 60);
+        sec.value = totalSec % 60;
+      }
+
+      function dhSetPresets(totalSec) {
+        $$('.dh-preset').forEach(btn => btn.classList.toggle('active', Number(btn.dataset.dhSeconds) === totalSec));
+      }
+
+      function dhSetMode(mode) {
+        if (!['down', 'up'].includes(mode) || dhTimer.mode === mode) return;
+        if (dhTimer.running) {
+          const ok = window.confirm('計測中です。モードを切り替えると現在の計測はリセットされます。切り替えますか？');
+          if (!ok) return;
+        }
+        clearInterval(dhTimer.intervalId);
+        dhTimer.intervalId = null;
+        dhTimer.mode = mode;
+        dhTimer.running = false;
+        dhTimer.done = false;
+        dhTimer.finishReason = '';
+        dhTimer.startedAt = 0;
+        dhTimer.baseRemain = dhTimer.duration;
+        dhTimer.remain = dhTimer.duration;
+        dhTimer.elapsed = 0;
+        dhTimer.baseElapsed = 0;
+        dhTimer.currentStart = null;
+        dhTimer.saved = false;
+        $('#dhDisplay')?.classList.remove('done');
+        if ($('#dhStartBtn')) $('#dhStartBtn').textContent = 'Start';
+        dhStopNoise();
+        dhUpdateModeUI();
+        dhUpdateDisplay();
+        dhUpdateStatus();
+        dhUpdateHourglass();
+      }
+
+      function dhUpdateModeUI() {
+        $$('.dh-mode-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.dhMode === dhTimer.mode));
+        $('#dhTimerCard')?.classList.toggle('is-countup', dhTimer.mode === 'up');
+        const finishBtn = $('#dhFinishBtn');
+        if (finishBtn) finishBtn.textContent = dhTimer.mode === 'up' ? '完了して記録' : '終了して記録';
+      }
+
+      function dhUpdateFinishButton() {
+        const btn = $('#dhFinishBtn');
+        if (!btn) return;
+        btn.disabled = dhGetActiveSeconds() <= 0 || dhTimer.saved;
+      }
+
+      function dhUpdateDisplay() {
+        const display = $('#dhDisplay');
+        if (!display) return;
+        const ms = dhTimer.mode === 'up' ? dhGetElapsed() : dhTimer.remain;
+        display.textContent = dhFmtTime(ms);
+        const note = $('#dhElapsedNote');
+        if (note) {
+          const sec = dhGetActiveSeconds();
+          const modeText = dhTimer.mode === 'up' ? 'カウントアップ中' : '記録予定';
+          note.textContent = sec > 0 ? `${modeText}：${dhFmtDuration(sec)}` : `${modeText}：まだ砂は入っていない`;
+        }
+        dhUpdateFinishButton();
+      }
+
+      function dhApplyDuration(totalSec, keepPreset = true) {
+        const ms = totalSec * 1000;
+        dhTimer.duration = ms;
+        dhTimer.remain = ms;
+        dhTimer.elapsed = 0;
+        dhTimer.baseElapsed = 0;
+        dhTimer.running = false;
+        dhTimer.done = false;
+        dhTimer.finishReason = '';
+        dhTimer.startedAt = 0;
+        dhTimer.baseRemain = ms;
+        dhTimer.currentStart = null;
+        dhTimer.saved = false;
+        clearInterval(dhTimer.intervalId);
+        dhTimer.intervalId = null;
+        $('#dhDisplay')?.classList.remove('done');
+        if ($('#dhStartBtn')) $('#dhStartBtn').textContent = 'Start';
+        dhSyncInputs(totalSec);
+        if (keepPreset) dhSetPresets(totalSec);
+        dhStopNoise();
+        dhUpdateModeUI();
+        dhUpdateDisplay();
+        dhUpdateStatus();
+        dhUpdateHourglass();
+      }
+
+      function dhGetRemain(now = Date.now()) {
+        return dhTimer.running && dhTimer.mode === 'down' ? Math.max(0, dhTimer.baseRemain - (now - dhTimer.startedAt)) : dhTimer.remain;
+      }
+
+      function dhGetElapsed(now = Date.now()) {
+        return dhTimer.running && dhTimer.mode === 'up' ? Math.max(0, dhTimer.baseElapsed + (now - dhTimer.startedAt)) : dhTimer.elapsed;
+      }
+
+      function dhGetActiveSeconds() {
+        if (dhTimer.mode === 'up') return Math.round(dhGetElapsed() / 1000);
+        const usedMs = Math.max(0, dhTimer.duration - dhGetRemain());
+        return Math.round(usedMs / 1000);
+      }
+
+      function dhUpdateHourglass() {
+        const hg = $('#dhHourglass');
+        if (!hg) return;
+        if (dhTimer.mode === 'up') {
+          const elapsed = dhGetElapsed();
+          const ratio = Math.min(1, elapsed / Math.max(1, dhTimer.duration));
+          hg.style.setProperty('--dh-top', String(Math.max(0.12, 1 - ratio)));
+          hg.style.setProperty('--dh-bottom', String(Math.max(0.16, ratio)));
+          hg.style.setProperty('--dh-stream', dhTimer.running ? '1' : '0');
+          return;
+        }
+        const ratio = dhTimer.duration ? dhTimer.remain / dhTimer.duration : 0;
+        hg.style.setProperty('--dh-top', String(Math.max(0.12, ratio)));
+        hg.style.setProperty('--dh-bottom', String(Math.max(0.16, 1 - ratio)));
+        hg.style.setProperty('--dh-stream', dhTimer.running && ratio > 0 && ratio < 1 ? '1' : '0');
+      }
+
+      function dhUpdateStatus() {
+        const status = $('#dhStatus');
+        const note = $('#dhTaskNote')?.value.trim() || '';
+        if (!status) return;
+        const tags = dhState.selectedTags.join('・');
+        if (dhTimer.running) {
+          const modeText = dhTimer.mode === 'up' ? 'カウントアップで測っている' : '砂を落としている';
+          status.textContent = note ? `今は「${note}」のために${modeText}。${tags ? `目的は ${tags}。` : ''}` : `今は${modeText}。目的を言葉にすると、後でぶれにくい。`;
+          return;
+        }
+        if (dhTimer.done) {
+          status.textContent = dhTimer.mode === 'up' ? 'カウントアップを記録した。今回の時間を小瓶に移した。' : (dhTimer.finishReason === 'manual' ? '途中終了を記録した。ここまでの時間を小瓶に移した。' : '砂は落ち切った。今回の時間を小瓶に移した。');
+          return;
+        }
+        if (dhTimer.mode === 'up') {
+          status.textContent = note ? `次は「${note}」を、終わるまで測る。${tags ? `目的は ${tags}。` : ''}` : 'カウントアップは、終わり時間が読めない作業に向いている。始めて、終わったら記録だ。';
+          return;
+        }
+        status.textContent = note ? `次の時間は「${note}」に使う予定だ。${tags ? `目的は ${tags}。` : ''}` : '今から何をするか決めてから、砂を落とそう。';
+      }
+
+      function dhEnsureNoise() {
+        if (dhNoise.ctx) return;
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        dhNoise.ctx = new AudioContext();
+        dhNoise.master = dhNoise.ctx.createGain();
+        dhNoise.master.gain.value = 0;
+        dhNoise.master.connect(dhNoise.ctx.destination);
+        const sr = dhNoise.ctx.sampleRate;
+        const len = sr * 4;
+        const buffer = dhNoise.ctx.createBuffer(1, len, sr);
+        const data = buffer.getChannelData(0);
+        let last = 0;
+        for (let i = 0; i < len; i += 1) {
+          last = (last + 0.02 * (Math.random() * 2 - 1)) / 1.02;
+          data[i] = last * 3.5;
+        }
+        let max = 0;
+        for (let i = 0; i < len; i += 1) max = Math.max(max, Math.abs(data[i]));
+        for (let i = 0; i < len; i += 1) data[i] = max ? (data[i] / max) * 0.9 : 0;
+        const source = dhNoise.ctx.createBufferSource();
+        source.buffer = buffer;
+        source.loop = true;
+        const lp = dhNoise.ctx.createBiquadFilter();
+        lp.type = 'lowpass';
+        lp.frequency.value = 420;
+        source.connect(lp);
+        lp.connect(dhNoise.master);
+        source.start();
+        dhNoise.source = source;
+      }
+
+      function dhStartNoise() {
+        try {
+          dhEnsureNoise();
+          if (!dhNoise.ctx || !dhNoise.master) return;
+          if (dhNoise.ctx.state === 'suspended') dhNoise.ctx.resume();
+          const target = Number($('#dhNoiseVolume')?.value || 0) / 100;
+          dhNoise.master.gain.cancelScheduledValues(dhNoise.ctx.currentTime);
+          dhNoise.master.gain.setTargetAtTime(target, dhNoise.ctx.currentTime, 0.25);
+        } catch (error) { /* noise optional */ }
+      }
+
+      function dhStopNoise() {
+        if (!dhNoise.ctx || !dhNoise.master) return;
+        dhNoise.master.gain.cancelScheduledValues(dhNoise.ctx.currentTime);
+        dhNoise.master.gain.setTargetAtTime(0, dhNoise.ctx.currentTime, 0.25);
+      }
+
+      function dhToggleTimer() {
+        if (dhTimer.done || (dhTimer.mode === 'down' && dhTimer.remain <= 0)) {
+          dhApplyDuration(dhParseSeconds(), false);
+          return;
+        }
+        dhTimer.running = !dhTimer.running;
+        if (dhTimer.running) {
+          dhTimer.startedAt = Date.now();
+          if (dhTimer.mode === 'down') dhTimer.baseRemain = dhTimer.remain;
+          else dhTimer.baseElapsed = dhTimer.elapsed;
+          if (!dhTimer.currentStart) {
+            dhTimer.currentStart = dhTimer.startedAt;
+            dhTimer.saved = false;
+          }
+          $('#dhStartBtn').textContent = 'Pause';
+          dhStartNoise();
+          clearInterval(dhTimer.intervalId);
+          dhTimer.intervalId = setInterval(dhTickTimer, 250);
+        } else {
+          if (dhTimer.mode === 'down') dhTimer.remain = dhGetRemain();
+          else dhTimer.elapsed = dhGetElapsed();
+          clearInterval(dhTimer.intervalId);
+          dhTimer.intervalId = null;
+          $('#dhStartBtn').textContent = 'Start';
+          dhStopNoise();
+        }
+        dhUpdateDisplay();
+        dhUpdateStatus();
+        dhUpdateHourglass();
+      }
+
+      function dhTickTimer() {
+        if (!dhTimer.running) return;
+        if (dhTimer.mode === 'up') {
+          dhTimer.elapsed = dhGetElapsed();
+          dhUpdateDisplay();
+          dhUpdateHourglass();
+          return;
+        }
+        dhTimer.remain = dhGetRemain();
+        dhUpdateDisplay();
+        dhUpdateHourglass();
+        if (dhTimer.remain <= 0) dhFinishTimer('auto');
+      }
+
+      function dhFinishTimer(reason = 'manual') {
+        const activeSec = dhGetActiveSeconds();
+        if (activeSec <= 0 && reason !== 'auto') {
+          toast('まだ記録できる砂がない。1秒以上測ってから終了してくれ。');
+          return;
+        }
+        if (dhTimer.mode === 'up') dhTimer.elapsed = dhGetElapsed();
+        else dhTimer.remain = reason === 'auto' ? 0 : dhGetRemain();
+        dhTimer.running = false;
+        dhTimer.done = true;
+        dhTimer.finishReason = reason;
+        clearInterval(dhTimer.intervalId);
+        dhTimer.intervalId = null;
+        $('#dhDisplay')?.classList.add('done');
+        if ($('#dhStartBtn')) $('#dhStartBtn').textContent = 'Start';
+        dhStopNoise();
+        dhAddHistoryEntry(reason);
+        if (reason === 'auto') playSound('timer');
+        toast(dhTimer.mode === 'up' ? 'カウントアップ完了。今回の時間を小瓶に移した。' : (reason === 'auto' ? '砂時計完了。今回の時間を小瓶に移した。' : '途中終了を記録した。ここまでの砂を小瓶に移した。'));
+        dhUpdateDisplay();
+        dhUpdateStatus();
+        dhUpdateHourglass();
+      }
+
+      function dhResetTimer() {
+        if (dhTimer.running) {
+          clearInterval(dhTimer.intervalId);
+          dhTimer.intervalId = null;
+        }
+        if (dhTimer.mode === 'up') {
+          dhTimer.running = false;
+          dhTimer.done = false;
+          dhTimer.finishReason = '';
+          dhTimer.startedAt = 0;
+          dhTimer.elapsed = 0;
+          dhTimer.baseElapsed = 0;
+          dhTimer.currentStart = null;
+          dhTimer.saved = false;
+          $('#dhDisplay')?.classList.remove('done');
+          if ($('#dhStartBtn')) $('#dhStartBtn').textContent = 'Start';
+          dhStopNoise();
+          dhUpdateDisplay();
+          dhUpdateStatus();
+          dhUpdateHourglass();
+          return;
+        }
+        dhApplyDuration(dhParseSeconds(), false);
+      }
+
+      function dhAddHistoryEntry(reason = 'auto') {
+        if (dhTimer.saved || !dhTimer.currentStart) return;
+        const durationSec = dhGetActiveSeconds();
+        if (durationSec <= 0) return;
+        const entry = {
+          id: uid(),
+          mode: dhTimer.mode,
+          reason,
+          startedAt: dhTimer.currentStart,
+          endedAt: Date.now(),
+          durationSec,
+          note: $('#dhTaskNote')?.value.trim() || '',
+          tags: [...dhState.selectedTags],
+          wageType: normalizeWageType($('#dhWageType')?.value || 'salary'),
+          reviewRate: '',
+          reviewText: ''
+        };
+        dhState.history.unshift(entry);
+        dhState.history = dhState.history.slice(0, 200);
+        dhSaveJSON(DH_STORAGE.history, dhState.history);
+        dhTimer.saved = true;
+        dhRenderHistory();
+      }
+
+      function dhRenderTags() {
+        const row = $('#dhTagRow');
+        if (!row) return;
+        row.innerHTML = dhState.tagCatalog.map(theme => `
+          <span class="dh-tag-wrap">
+            <button class="dh-chip ${dhState.selectedTags.includes(theme.tag) ? 'active' : ''}" type="button" data-dh-tag="${escapeHtml(theme.tag)}">${escapeHtml(theme.label)}</button>
+            <button class="dh-remove" type="button" data-dh-remove-tag="${escapeHtml(theme.tag)}" title="タグを削除">×</button>
+          </span>
+        `).join('');
+      }
+
+      function dhAddCustomTag() {
+        const input = $('#dhCustomTagInput');
+        const tag = dhNormalizeTag(input?.value || '');
+        if (!tag) return toast('追加するタグ名を入力してくれ。');
+        if (tag === DH_UNCATEGORIZED.tag) return toast('未分類は自動集計用だ。別名にしてくれ。');
+        if (!dhState.tagCatalog.some(theme => theme.tag === tag)) {
+          dhState.tagCatalog.push({ tag, label: tag, note: `${tag}に使った砂` });
+          dhSaveTagCatalog();
+        }
+        if (!dhState.selectedTags.includes(tag)) dhState.selectedTags.push(tag);
+        dhSaveJSON(DH_STORAGE.tags, dhState.selectedTags);
+        if (input) input.value = '';
+        dhRenderTags();
+        dhRenderBottles();
+        dhUpdateStatus();
+      }
+
+      function dhRemoveTag(tag) {
+        if (!dhState.tagCatalog.some(theme => theme.tag === tag)) return;
+        const usedToday = dhState.history.some(item => dhTodayKey(item.endedAt) === dhTodayKey() && Array.isArray(item.tags) && item.tags.includes(tag));
+        const message = usedToday ? `「${tag}」は今日の履歴で使われている。削除すると小瓶では未分類に移る。削除する？` : `「${tag}」を削除する？`;
+        if (!window.confirm(message)) return;
+        dhState.tagCatalog = dhState.tagCatalog.filter(theme => theme.tag !== tag);
+        dhState.selectedTags = dhState.selectedTags.filter(item => item !== tag);
+        dhSaveTagCatalog();
+        dhSaveJSON(DH_STORAGE.tags, dhState.selectedTags);
+        dhRenderTags();
+        dhRenderBottles();
+        dhUpdateStatus();
+      }
+
+      function dhBuildDailyBuckets() {
+        const today = dhTodayKey();
+        const bucketMap = new Map(dhGetThemes().map(theme => [theme.tag, { ...theme, totalSec: 0, count: 0 }]));
+        let totalTodaySec = 0;
+        let sessionCount = 0;
+        dhState.history.forEach(item => {
+          if (!item || dhTodayKey(item.endedAt) !== today) return;
+          const durationSec = Number(item.durationSec) || 0;
+          if (durationSec <= 0) return;
+          const tags = Array.isArray(item.tags) && item.tags.length ? item.tags : [DH_UNCATEGORIZED.tag];
+          const shareSec = durationSec / tags.length;
+          totalTodaySec += durationSec;
+          sessionCount += 1;
+          tags.forEach(tag => {
+            const bucketTag = bucketMap.has(tag) ? tag : DH_UNCATEGORIZED.tag;
+            const bucket = bucketMap.get(bucketTag);
+            bucket.totalSec += shareSec;
+            bucket.count += 1;
+          });
+        });
+        const buckets = [...bucketMap.values()];
+        const top = buckets.reduce((best, bucket) => bucket.totalSec > best.totalSec ? bucket : best, { totalSec: 0, tag: '', label: '' });
+        return { buckets, totalTodaySec, sessionCount, top };
+      }
+
+      function dhRenderBottles() {
+        const grid = $('#dhBottleGrid');
+        const summary = $('#dhBottleSummary');
+        if (!grid || !summary) return;
+        const { buckets, totalTodaySec, sessionCount, top } = dhBuildDailyBuckets();
+        const wageSummary = dhBuildWageSummary();
+        summary.textContent = totalTodaySec ? `今日の累積は ${dhFmtDuration(totalTodaySec)}、完了セッションは ${sessionCount}回。時間収支は ${wageSummary.netYen < 0 ? '-' : ''}${dhFmtYen(Math.abs(wageSummary.netYen))}（${wageSummaryText(wageSummary)}）。一番多いのは「${top.label}」で ${dhFmtDuration(top.totalSec)}。` : '今日はまだ小瓶に砂が入っていない。まずは短い5分を一本、落としてみろ。';
+        grid.innerHTML = buckets.map((bucket, index) => {
+          const fill = Math.min(100, Math.round((bucket.totalSec / DH_DAY_SEC) * 100));
+          const isTop = bucket.totalSec > 0 && bucket.tag === top.tag;
+          return `
+            <article class="dh-bottle ${isTop ? 'is-top' : ''}" style="--fill:${fill}%; --delay:${index * 40}ms">
+              <div class="dh-bottle-visual" aria-hidden="true"><div class="dh-bottle-fill"></div></div>
+              <div class="dh-bottle-name">${escapeHtml(bucket.label)}</div>
+              <div class="dh-bottle-time">${escapeHtml(dhFmtDuration(bucket.totalSec))}</div>
+              <div class="dh-bottle-percent">${fill}% / 24時間</div>
+              <div class="dh-bottle-note">${escapeHtml(bucket.note)}</div>
+            </article>
+          `;
+        }).join('');
+      }
+
+      function dhRenderHistory() {
+        dhRenderBottles();
+        const list = $('#dhHistoryList');
+        if (!list) return;
+        if (!dhState.history.length) {
+          list.innerHTML = '<li class="empty">まだ砂時計ログはありません。短い一本から始めよう。</li>';
+          return;
+        }
+        list.innerHTML = dhState.history.map(item => `
+          <li class="dh-history-item">
+            <div class="task-meta">
+              <span class="tag">${escapeHtml(item.mode === 'up' ? 'カウントアップ' : (item.reason === 'manual' ? '途中終了' : 'カウントダウン'))}</span>
+              <span class="tag">開始 ${escapeHtml(new Date(item.startedAt).toLocaleString('ja-JP'))}</span>
+              <span class="tag">終了 ${escapeHtml(new Date(item.endedAt).toLocaleString('ja-JP'))}</span>
+              <span class="tag">${escapeHtml(dhFmtDuration(item.durationSec))}</span>
+              <span class="wage-note ${wageTypeClass(item.wageType)}">${escapeHtml(dhWageLabel(item.durationSec, item.wageType))}</span>
+            </div>
+            ${(item.tags || []).length ? `<div class="dh-history-tags">${item.tags.map(tag => `<span class="dh-history-tag">${escapeHtml(tag)}</span>`).join('')}</div>` : ''}
+            <p class="soft">${escapeHtml(item.note || 'メモなし')}</p>
+            <div class="toolbar-actions" style="justify-content:flex-end">
+              <button class="btn danger small" type="button" data-dh-delete="${escapeHtml(item.id)}">削除</button>
+            </div>
+          </li>
+        `).join('');
+      }
+
+      function dhUpdateNow() {
+        const now = new Date();
+        const dateEl = $('#dhNowDate');
+        const timeEl = $('#dhNowTime');
+        const dayEl = $('#dhDayText');
+        if (!dateEl || !timeEl || !dayEl) return;
+        dateEl.textContent = now.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
+        timeEl.textContent = now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+        const end = new Date(now);
+        end.setHours(23, 59, 59, 999);
+        const remain = Math.max(0, end - now);
+        const h = Math.floor(remain / 3600000);
+        const m = Math.floor((remain % 3600000) / 60000);
+        dayEl.textContent = `今日の残りは ${h}時間 ${m}分。何に使うかで、明日が変わる。`;
+        if (dhTodayKey(now) !== dhTimer.currentDay) {
+          dhTimer.currentDay = dhTodayKey(now);
+          dhRenderBottles();
+        }
+        dhUpdateLife(now);
+      }
+
+      function dhUpdateLife(now = new Date()) {
+        const birthEl = $('#dhBirthDate');
+        const ageEl = $('#dhAgeText');
+        const remainingEl = $('#dhRemainingText');
+        if (!birthEl || !ageEl || !remainingEl) return;
+        const birth = birthEl.value;
+        if (!birth) {
+          ageEl.textContent = '生年月日を入れると、今の年齢と生まれてから経った時間を表示します。';
+          remainingEl.textContent = '平均寿命を仮定した残り時間を表示します。';
+          return;
+        }
+        const b = new Date(`${birth}T00:00:00`);
+        if (Number.isNaN(b.getTime()) || b > now) {
+          ageEl.textContent = '日付が正しくありません。';
+          remainingEl.textContent = '平均寿命の仮定表示を計算できません。';
+          return;
+        }
+        let age = now.getFullYear() - b.getFullYear();
+        const hadBirthday = now.getMonth() > b.getMonth() || (now.getMonth() === b.getMonth() && now.getDate() >= b.getDate());
+        if (!hadBirthday) age -= 1;
+        const lived = now - b;
+        const days = Math.floor(lived / 86400000);
+        const hours = Math.floor((lived % 86400000) / 3600000);
+        ageEl.textContent = `いま ${age}歳。生まれてから約 ${days.toLocaleString('ja-JP')}日と ${hours}時間が過ぎた。`;
+        const assumed = new Date(b.getTime() + DH_AVG_LIFE_FEMALE_JP * DH_YEAR_MS);
+        const remaining = assumed - now;
+        const assumedText = assumed.toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        remainingEl.textContent = remaining >= 0
+          ? `平均寿命 ${DH_AVG_LIFE_FEMALE_JP}歳 を仮定すると、想定日は ${assumedText}、残りは約 ${dhFormatSpan(remaining)}。`
+          : `平均寿命 ${DH_AVG_LIFE_FEMALE_JP}歳 を仮定すると、想定日 ${assumedText} を約 ${dhFormatSpan(Math.abs(remaining))} 上回っています。`;
+      }
+
+      function dhDownloadFile(name, text, type) {
+        const blob = new Blob([text], { type });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = name;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      function dhExportToday() {
+        const payload = {
+          version: 2,
+          exportedAt: new Date().toISOString(),
+          birthDate: $('#dhBirthDate')?.value || '',
+          taskDraft: $('#dhTaskNote')?.value || '',
+          selectedTags: [...dhState.selectedTags],
+          tagCatalog: dhState.tagCatalog,
+          history: dhState.history.filter(item => dhTodayKey(item.endedAt) === dhTodayKey())
+        };
+        dhDownloadFile(`yorozu-hourglass-${todayKey()}.txt`, JSON.stringify(payload, null, 2), 'text/plain;charset=utf-8');
+        toast('砂時計ログを書き出した。');
+      }
+
+      function dhImportData(event) {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const data = JSON.parse(reader.result);
+            if (!Array.isArray(data.history)) throw new Error('保存データの形式が違う');
+            const map = new Map(dhState.history.map(item => [item.id, item]));
+            data.history.forEach(item => { if (item?.id) map.set(item.id, item); });
+            dhState.history = [...map.values()].sort((a, b) => b.endedAt - a.endedAt).slice(0, 200);
+            if (Array.isArray(data.tagCatalog)) {
+              const existing = new Set(dhState.tagCatalog.map(theme => theme.tag));
+              data.tagCatalog.forEach(item => {
+                const tag = dhNormalizeTag(item?.tag || item?.label || item);
+                if (!tag || existing.has(tag) || tag === DH_UNCATEGORIZED.tag) return;
+                dhState.tagCatalog.push({ tag, label: tag, note: item?.note || `${tag}に使った砂` });
+                existing.add(tag);
+              });
+            }
+            if (Array.isArray(data.selectedTags)) dhState.selectedTags = data.selectedTags.map(dhNormalizeTag).filter(Boolean);
+            if (typeof data.birthDate === 'string' && $('#dhBirthDate')) $('#dhBirthDate').value = data.birthDate;
+            if (typeof data.taskDraft === 'string' && $('#dhTaskNote')) $('#dhTaskNote').value = data.taskDraft;
+            dhSaveJSON(DH_STORAGE.history, dhState.history);
+            dhSaveJSON(DH_STORAGE.tags, dhState.selectedTags);
+            dhSaveTagCatalog();
+            localStorage.setItem(DH_STORAGE.birth, $('#dhBirthDate')?.value || '');
+            localStorage.setItem(DH_STORAGE.draft, $('#dhTaskNote')?.value || '');
+            dhRenderTags();
+            dhRenderHistory();
+            dhUpdateStatus();
+            toast('砂時計ログを読み込んだ。');
+          } catch (error) {
+            toast('読み込みに失敗した。txt/jsonの中身を確認してくれ。');
+          }
+        };
+        reader.readAsText(file);
+        event.target.value = '';
+      }
+
+      function dhBindEvents() {
+        $('#dhStartBtn')?.addEventListener('click', dhToggleTimer);
+        $('#dhResetBtn')?.addEventListener('click', dhResetTimer);
+        $('#dhFinishBtn')?.addEventListener('click', () => dhFinishTimer('manual'));
+        $$('.dh-mode-btn').forEach(btn => btn.addEventListener('click', () => dhSetMode(btn.dataset.dhMode)));
+        $('#dhAddTagBtn')?.addEventListener('click', dhAddCustomTag);
+        $('#dhCustomTagInput')?.addEventListener('keydown', event => {
+          if (event.key === 'Enter') {
+            event.preventDefault();
+            dhAddCustomTag();
+          }
+        });
+        $$('.dh-preset').forEach(btn => btn.addEventListener('click', () => {
+          if (btn.dataset.dhFocus === 'true') startHourglassFocus($('#dhTaskNote')?.value.trim() || '集中');
+          else dhApplyDuration(Number(btn.dataset.dhSeconds), true);
+        }));
+        ['#dhMinutes', '#dhSeconds'].forEach(selector => $(selector)?.addEventListener('change', () => {
+          if (dhTimer.running) return;
+          $$('.dh-preset').forEach(btn => btn.classList.remove('active'));
+          dhTimer.duration = dhParseSeconds() * 1000;
+          dhTimer.remain = dhTimer.duration;
+          dhTimer.elapsed = 0;
+          dhTimer.baseElapsed = 0;
+          dhTimer.done = false;
+          dhTimer.currentStart = null;
+          dhTimer.saved = false;
+          $('#dhDisplay')?.classList.remove('done');
+          dhUpdateModeUI();
+          dhUpdateDisplay();
+          dhUpdateStatus();
+          dhUpdateHourglass();
+        }));
+        $('#dhTaskNote')?.addEventListener('input', () => {
+          localStorage.setItem(DH_STORAGE.draft, $('#dhTaskNote').value);
+          dhUpdateStatus();
+        });
+        $('#dhBirthDate')?.addEventListener('change', () => {
+          localStorage.setItem(DH_STORAGE.birth, $('#dhBirthDate').value);
+          dhUpdateLife();
+        });
+        $('#dhNoiseVolume')?.addEventListener('input', () => {
+          if (dhTimer.running) dhStartNoise();
+        });
+        $('#dhTagRow')?.addEventListener('click', event => {
+          const removeBtn = event.target.closest('[data-dh-remove-tag]');
+          if (removeBtn) {
+            dhRemoveTag(removeBtn.dataset.dhRemoveTag);
+            return;
+          }
+          const chip = event.target.closest('[data-dh-tag]');
+          if (!chip) return;
+          const tag = chip.dataset.dhTag;
+          dhState.selectedTags = dhState.selectedTags.includes(tag)
+            ? dhState.selectedTags.filter(item => item !== tag)
+            : [...dhState.selectedTags, tag];
+          dhSaveJSON(DH_STORAGE.tags, dhState.selectedTags);
+          dhRenderTags();
+          dhUpdateStatus();
+        });
+        $('#dhHistoryList')?.addEventListener('click', event => {
+          const btn = event.target.closest('[data-dh-delete]');
+          if (!btn) return;
+          dhState.history = dhState.history.filter(item => item.id !== btn.dataset.dhDelete);
+          dhSaveJSON(DH_STORAGE.history, dhState.history);
+          dhRenderHistory();
+        });
+        $('#dhClearHistoryBtn')?.addEventListener('click', () => {
+          if (!window.confirm('砂時計ログをすべて削除する？')) return;
+          dhState.history = [];
+          dhSaveJSON(DH_STORAGE.history, dhState.history);
+          dhRenderHistory();
+        });
+        $('#dhRebuildBottlesBtn')?.addEventListener('click', dhRenderBottles);
+        $('#dhExportTodayBtn')?.addEventListener('click', dhExportToday);
+        $('#dhImportSaveBtn')?.addEventListener('click', () => $('#dhFileLoader')?.click());
+        $('#dhFileLoader')?.addEventListener('change', dhImportData);
+      }
+
+      function dhInit() {
+        if ($('#dhBirthDate')) $('#dhBirthDate').value = localStorage.getItem(DH_STORAGE.birth) || '';
+        if ($('#dhTaskNote')) $('#dhTaskNote').value = localStorage.getItem(DH_STORAGE.draft) || '';
+        dhRenderTags();
+        dhRenderHistory();
+        dhUpdateModeUI();
+        dhUpdateDisplay();
+        dhUpdateStatus();
+        dhUpdateNow();
+        dhUpdateHourglass();
+        dhBindEvents();
+        setInterval(dhUpdateNow, 1000);
+      }
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return defaultState();
+          const parsed = JSON.parse(raw);
+          return deepMerge(defaultState(), parsed);
+        } catch (error) {
+          console.warn('保存データの読み込みに失敗しました', error);
+          return defaultState();
+        }
+      }
+
+      function deepMerge(base, incoming) {
+        for (const key in incoming || {}) {
+          if (incoming[key] && typeof incoming[key] === 'object' && !Array.isArray(incoming[key])) {
+            base[key] = deepMerge(base[key] || {}, incoming[key]);
+          } else {
+            base[key] = incoming[key];
+          }
+        }
+        return base;
+      }
+
+      function saveState() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
+
+      function cloneForUndo(value) {
+        try {
+          return typeof structuredClone === 'function'
+            ? structuredClone(value)
+            : JSON.parse(JSON.stringify(value));
+        } catch (error) {
+          console.warn('取り消し用コピーに失敗しました', error);
+          return JSON.parse(JSON.stringify(value));
+        }
+      }
+
+      function loadUndoRecord() {
+        try {
+          const raw = localStorage.getItem(UNDO_KEY);
+          return raw ? JSON.parse(raw) : null;
+        } catch (error) {
+          console.warn('取り消しデータの読み込みに失敗しました', error);
+          return null;
+        }
+      }
+
+      function setUndoPoint(label) {
+        undoRecord = {
+          label,
+          createdAt: new Date().toISOString(),
+          state: cloneForUndo(state)
+        };
+        localStorage.setItem(UNDO_KEY, JSON.stringify(undoRecord));
+        renderUndoButton();
+      }
+
+      function clearUndoPoint() {
+        undoRecord = null;
+        localStorage.removeItem(UNDO_KEY);
+        renderUndoButton();
+      }
+
+      function renderUndoButton() {
+        const mainBtn = $('#undoLastBtn');
+        const helper = $('#undoHelper');
+        const helperText = $('#undoHelperText');
+        if (!mainBtn || !helper || !helperText) return;
+
+        const hasUndo = !!undoRecord?.state;
+        mainBtn.disabled = !hasUndo;
+        mainBtn.textContent = hasUndo ? `↩ ${undoRecord.label}を取り消す` : '↩ 直前操作を取り消す';
+        helper.hidden = !hasUndo;
+        helperText.innerHTML = hasUndo
+          ? `<strong>${escapeHtml(undoRecord.label)}</strong>を1回だけ巻き戻せる。押し間違いならここで戻せ。`
+          : '';
+      }
+
+      function undoLastAction() {
+        if (!undoRecord?.state) {
+          toast('戻せる操作はまだない。白紙の答案は消しゴムでも戻せねぇ。');
+          return;
+        }
+        const label = undoRecord.label || '直前操作';
+        state = deepMerge(defaultState(), cloneForUndo(undoRecord.state));
+        saveState();
+        clearUndoPoint();
+        $('#selectedDate').value = state.selectedDate || todayKey();
+        $('#taskDate').value = state.selectedDate || todayKey();
+        renderAll();
+        toast(`${label}を取り消した。押し間違いは事故じゃなくて、保険で処理するやつだ。`);
+      }
+
+      function init() {
+        $('#selectedDate').value = state.selectedDate || todayKey();
+        $('#taskDate').value = state.selectedDate || todayKey();
+        $('#goalInput').value = state.profile.goal;
+        $('#soundSelect').value = state.profile.sound;
+        bindEvents();
+        dhInit();
+        renderAll();
+        startAlarmLoop();
+      }
+
+      function bindEvents() {
+        $$('.tab-btn').forEach(btn => btn.addEventListener('click', () => setTab(btn.dataset.tab)));
+        $$('[data-tab-go]').forEach(btn => btn.addEventListener('click', () => setTab(btn.dataset.tabGo)));
+
+        $('#selectedDate').addEventListener('change', e => {
+          state.selectedDate = e.target.value || todayKey();
+          $('#taskDate').value = state.selectedDate;
+          saveState();
+          renderAll();
+        });
+
+        $('#todayBtn').addEventListener('click', () => {
+          state.selectedDate = todayKey();
+          $('#selectedDate').value = state.selectedDate;
+          $('#taskDate').value = state.selectedDate;
+          saveState();
+          renderAll();
+        });
+
+        $('#taskForm').addEventListener('submit', e => {
+          e.preventDefault();
+          saveTaskFromForm();
+        });
+
+        document.addEventListener('keydown', e => {
+          if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && $('#view-add').classList.contains('active')) {
+            e.preventDefault();
+            if ($('#taskTitle').value.trim()) saveTaskFromForm();
+          }
+        });
+
+        $('#resetFormBtn').addEventListener('click', resetTaskForm);
+
+        $$('[data-time-target]').forEach(btn => btn.addEventListener('click', () => openTimePicker(btn.dataset.timeTarget)));
+        ['taskStart', 'taskEnd'].forEach(id => $('#' + id)?.addEventListener('click', () => openTimePicker(id)));
+        $('#timePickerOk')?.addEventListener('click', applyTimePicker);
+        $('#timePickerClear')?.addEventListener('click', clearTimePickerValue);
+        $('#timePickerBack')?.addEventListener('click', timePickerBack);
+        $('#minuteNudge')?.addEventListener('click', e => {
+          const btn = e.target.closest('[data-minute-nudge]');
+          if (!btn) return;
+          timePicker.minute = (timePicker.minute + Number(btn.dataset.minuteNudge) + 60) % 60;
+          renderTimePickerClock();
+        });
+        $('#sortBtn').addEventListener('click', () => {
+          state.profile.sort = state.profile.sort === 'time' ? 'energy' : 'time';
+          saveState();
+          renderAll();
+        });
+        $('#clearDoneBtn').addEventListener('click', () => {
+          state.profile.hideDone = !state.profile.hideDone;
+          saveState();
+          renderAll();
+        });
+        $('#notifyBtn').addEventListener('click', askNotificationPermission);
+        $('#sealDayBtn').addEventListener('click', sealDay);
+        $('#undoLastBtn').addEventListener('click', undoLastAction);
+        $('#undoHelperBtn').addEventListener('click', undoLastAction);
+        $('#startQuickPomodoro')?.addEventListener('click', () => startHourglassFocus());
+
+        $('#timerStartBtn')?.addEventListener('click', startTimer);
+        $('#timerPauseBtn')?.addEventListener('click', pauseTimer);
+        $('#timerResetBtn')?.addEventListener('click', resetTimer);
+        $('#focusMinutes')?.addEventListener('change', updateTimerSettings);
+        $('#breakMinutes')?.addEventListener('change', updateTimerSettings);
+        $('#timerTaskSelect')?.addEventListener('change', e => {
+          timer.taskId = e.target.value;
+          renderTimer();
+        });
+
+        $('#brainDumpAddBtn')?.addEventListener('click', addBrainDump);
+        $('#brainDumpText')?.addEventListener('keydown', e => {
+          if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            e.preventDefault();
+            addBrainDump();
+          }
+        });
+        $('#brainDumpClearBtn')?.addEventListener('click', clearBrainDump);
+
+        $('#rewardForm')?.addEventListener('submit', e => {
+          e.preventDefault();
+          addReward();
+        });
+
+        $('#saveSettingsBtn').addEventListener('click', () => {
+          setUndoPoint('設定保存');
+          state.profile.goal = clamp(Number($('#goalInput').value) || 3, 1, 12);
+          state.profile.sound = $('#soundSelect').value;
+          saveState();
+          renderAll();
+          toast('設定を保存した。これでまた少し使いやすくなったな。');
+        });
+
+        $('#exportBtn').addEventListener('click', exportData);
+        $('#importFile').addEventListener('change', importData);
+        $('#resetAllBtn').addEventListener('click', async () => {
+          const ok = await confirmAction('全データ削除', 'ミッション、履歴、設定をすべて削除する。直前操作の取り消しで1回だけ戻せるが、慎重にいくぞ。実行する？');
+          if (!ok) return;
+          setUndoPoint('全データ削除');
+          state = defaultState();
+          saveState();
+          location.reload();
+        });
+      }
+
+      function setTab(tab) {
+        $$('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
+        $$('.view').forEach(view => view.classList.toggle('active', view.id === `view-${tab}`));
+        if (tab === 'add') $('#taskTitle').focus();
+      }
+
+
+
+      function parseTimeParts(value) {
+        const match = String(value || '').match(/^(\d{1,2}):(\d{2})$/);
+        if (!match) return null;
+        const hour = clamp(Number(match[1]), 0, 23);
+        const minute = clamp(Number(match[2]), 0, 59);
+        return { hour, minute };
+      }
+
+      function openTimePicker(targetId) {
+        const input = $('#' + targetId);
+        const dialog = $('#timePickerDialog');
+        if (!input || !dialog) return;
+        const current = parseTimeParts(input.value);
+        const now = new Date();
+        timePicker = {
+          targetId,
+          phase: 'hour',
+          hour: current ? current.hour : now.getHours(),
+          minute: current ? current.minute : 0
+        };
+        $('#timePickerTitle').textContent = targetId === 'taskStart' ? '開始目安を設定' : '終了目安を設定';
+        renderTimePickerClock();
+        if (typeof dialog.showModal === 'function') dialog.showModal();
+        else dialog.setAttribute('open', '');
+      }
+
+      function renderTimePickerClock() {
+        const face = $('#analogClock');
+        if (!face) return;
+        const isHour = timePicker.phase === 'hour';
+        const values = isHour ? Array.from({ length: 24 }, (_, i) => i) : Array.from({ length: 12 }, (_, i) => i * 5);
+        face.innerHTML = values.map((value, index) => {
+          const deg = isHour ? ((value % 12) / 12) * 360 : (index / values.length) * 360;
+          const radius = isHour ? (value < 12 ? '76px' : '122px') : '116px';
+          const label = isHour ? String(value) : pad(value);
+          const active = isHour ? value === timePicker.hour : value === timePicker.minute;
+          return `<button class="clock-choice ${active ? 'active' : ''}" type="button" data-clock-value="${value}" style="--deg:${deg}deg;--radius:${radius}">${label}</button>`;
+        }).join('') + `<div class="clock-center">${isHour ? '内側0-11時／外側12-23時' : '分を選ぶ'}<br><strong>${pad(timePicker.hour)}:${pad(timePicker.minute)}</strong></div>`;
+        $('#timePickerStep').textContent = isHour ? '1/2：時間を選ぶ' : '2/2：分を選ぶ。細かく直すなら±1分。';
+        $('#timePickerValue').textContent = `${pad(timePicker.hour)}:${pad(timePicker.minute)}`;
+        $('#minuteNudge').hidden = isHour;
+        $('#timePickerBack').textContent = isHour ? '閉じる' : '時間へ戻る';
+        face.querySelectorAll('[data-clock-value]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const value = Number(btn.dataset.clockValue);
+            if (timePicker.phase === 'hour') {
+              timePicker.hour = clamp(value, 0, 23);
+              timePicker.phase = 'minute';
+            } else {
+              timePicker.minute = clamp(value, 0, 59);
+            }
+            renderTimePickerClock();
+          });
+        });
+      }
+
+      function applyTimePicker() {
+        const input = $('#' + timePicker.targetId);
+        const dialog = $('#timePickerDialog');
+        if (!input) return;
+        input.value = `${pad(timePicker.hour)}:${pad(timePicker.minute)}`;
+        if (dialog?.open) dialog.close();
+      }
+
+      function clearTimePickerValue() {
+        const input = $('#' + timePicker.targetId);
+        const dialog = $('#timePickerDialog');
+        if (input) input.value = '';
+        if (dialog?.open) dialog.close();
+      }
+
+      function timePickerBack() {
+        const dialog = $('#timePickerDialog');
+        if (timePicker.phase === 'minute') {
+          timePicker.phase = 'hour';
+          renderTimePickerClock();
+          return;
+        }
+        if (dialog?.open) dialog.close();
+      }
+
+      function selectedTasks() {
+        const list = state.tasks.filter(t => t.date === state.selectedDate);
+        const sorted = [...list].sort((a, b) => {
+          if (state.profile.sort === 'energy') {
+            const order = { light: 0, normal: 1, heavy: 2 };
+            return (order[a.energy] ?? 1) - (order[b.energy] ?? 1) || (a.start || '99:99').localeCompare(b.start || '99:99');
+          }
+          return (a.start || '99:99').localeCompare(b.start || '99:99');
+        });
+        return state.profile.hideDone ? sorted.filter(t => !t.completedAt) : sorted;
+      }
+
+      function todayStats(date = state.selectedDate) {
+        const tasks = state.tasks.filter(t => t.date === date);
+        const done = tasks.filter(t => t.completedAt);
+        const percent = tasks.length ? Math.round(done.length / tasks.length * 100) : 0;
+        return { tasks, done, total: tasks.length, completed: done.length, percent };
+      }
+
+      function renderAll() {
+        renderStats();
+        renderTasks();
+        renderBrainDump();
+        renderTimerOptions();
+        renderTimer();
+        renderRewards();
+        renderHistory();
+        renderSettings();
+        renderUndoButton();
+      }
+
+
+
+      function minutesBetween(start, end) {
+        if (!start || !end) return 0;
+        const [sh, sm] = String(start).split(':').map(Number);
+        const [eh, em] = String(end).split(':').map(Number);
+        if (![sh, sm, eh, em].every(Number.isFinite)) return 0;
+        const startMin = sh * 60 + sm;
+        const endMin = eh * 60 + em;
+        return Math.max(0, endMin - startMin);
+      }
+
+      function taskPlannedMinutes(task) {
+        return minutesBetween(task?.start, task?.end);
+      }
+
+      function normalizeWageType(type) {
+        return ['salary', 'profit', 'loss'].includes(type) ? type : 'salary';
+      }
+
+      function wageTypeLabel(type) {
+        const safe = normalizeWageType(type);
+        if (safe === 'loss') return '損失';
+        if (safe === 'profit') return '利益';
+        return '給与';
+      }
+
+      function wageTypeClass(type) {
+        return normalizeWageType(type);
+      }
+
+      function missionWageYen(minutes) {
+        return Math.round((Math.max(0, Number(minutes) || 0) / 60) * CHIBA_MIN_WAGE_YEN);
+      }
+
+      function signedWageYen(value, type) {
+        const yen = Math.max(0, Math.round(Number(value) || 0));
+        return normalizeWageType(type) === 'loss' ? -yen : yen;
+      }
+
+      function signedWageText(value, type) {
+        const yen = Math.max(0, Math.round(Number(value) || 0));
+        return `${normalizeWageType(type) === 'loss' ? '-' : '+'}${dhFmtYen(yen)}`;
+      }
+
+      function missionWageLabel(minutes, type = 'salary') {
+        const safe = normalizeWageType(type);
+        const label = wageTypeLabel(safe);
+        if (!minutes) return `${label}：予定時間未設定`;
+        const yen = missionWageYen(minutes);
+        return `${label} ${signedWageText(yen, safe)}（${minutes}分）`;
+      }
+
+      function wageSummaryText(summary) {
+        return `給与${dhFmtYen(summary.salaryYen)}・利益${dhFmtYen(summary.profitYen)}・損失-${dhFmtYen(summary.lossYen)}`;
+      }
+
+      function completedMissionWage(date = state.selectedDate) {
+        const done = state.tasks.filter(t => t.date === date && t.completedAt);
+        const summary = { totalMinutes: 0, salaryMinutes: 0, profitMinutes: 0, lossMinutes: 0, salaryYen: 0, profitYen: 0, lossYen: 0, netYen: 0 };
+        done.forEach(task => {
+          const minutes = taskPlannedMinutes(task);
+          const yen = missionWageYen(minutes);
+          const type = normalizeWageType(task.wageType);
+          summary.totalMinutes += minutes;
+          if (type === 'loss') {
+            summary.lossMinutes += minutes;
+            summary.lossYen += yen;
+            summary.netYen -= yen;
+          } else if (type === 'profit') {
+            summary.profitMinutes += minutes;
+            summary.profitYen += yen;
+            summary.netYen += yen;
+          } else {
+            summary.salaryMinutes += minutes;
+            summary.salaryYen += yen;
+            summary.netYen += yen;
+          }
+        });
+        return { ...summary, yen: summary.netYen };
+      }
+
+      function renderStats() {
+        const stats = todayStats();
+        const goal = state.profile.goal || 3;
+        const missionDone = Math.min(stats.completed, goal);
+        const missionRate = goal ? Math.round(missionDone / goal * 100) : 0;
+
+        $('#missionDone').textContent = missionDone;
+        $('#missionGoal').textContent = goal;
+        $('#missionCopy').textContent = missionCopy(stats.completed, goal, stats.total);
+        const pointStatEl = $('#pointStat');
+        if (pointStatEl) pointStatEl.textContent = '';
+        const wageStatEl = $('#totalWageStat');
+        if (wageStatEl) {
+          const wage = completedMissionWage(state.selectedDate);
+          wageStatEl.textContent = `${wage.netYen < 0 ? '-' : ''}${dhFmtYen(Math.abs(wage.netYen))}`;
+          const breakdown = $('#wageBreakdown');
+          if (breakdown) breakdown.textContent = wageSummaryText(wage);
+        }
+        $('#streakStat').textContent = state.profile.streak;
+        $('#rateStat').textContent = stats.percent;
+        $('#todayTotalStat').textContent = stats.total;
+        $('#sideProgressText').textContent = progressText(stats);
+        $('#todaySub').textContent = state.selectedDate === todayKey()
+          ? '守れなかった予定は、失敗じゃなくて再配置候補。'
+          : `${dateLabel(state.selectedDate)} のミッションを見ている。`;
+
+        setProgress('#heroRing', '#heroPercent', '#heroBar', missionRate);
+        setProgress('#sideRing', '#sidePercent', '#sideBar', stats.percent);
+        $('#sortBtn').textContent = `並び替え：${state.profile.sort === 'time' ? '時間順' : '軽い順'}`;
+        $('#clearDoneBtn').textContent = state.profile.hideDone ? '完了済みを表示' : '完了済みを隠す';
+        $('#coachLine').textContent = coachLine(stats);
+      }
+
+      function setProgress(ringSel, percentSel, barSel, percent) {
+        const p = clamp(percent, 0, 100);
+        $(ringSel).style.setProperty('--p', p);
+        $(percentSel).textContent = `${p}%`;
+        $(barSel).style.width = `${p}%`;
+      }
+
+      function missionCopy(completed, goal, total) {
+        if (total === 0) return '今日はまだ白紙。白紙ってのは、負けじゃなく余白だ。';
+        if (completed === 0) return 'まずは1個。幕開けは小さくていい。';
+        if (completed < goal) return `あと${goal - completed}個で今日の基準クリア。焦らず刻め。`;
+        return '今日の基準クリア。いいじゃねぇか、ちゃんと前に出た。';
+      }
+
+      function progressText(stats) {
+        if (stats.total === 0) return '予定はまだ空。空白も作戦のうちだ。';
+        if (stats.completed === 0) return `${stats.total}件中まだ0件。最初の一手だけでいい。`;
+        if (stats.completed < stats.total) return `${stats.completed}/${stats.total}件クリア。途中経過としては悪くない。`;
+        return `${stats.total}件全部クリア。今日は勝ちでいい。`;
+      }
+
+      function coachLine(stats) {
+        if (stats.total === 0) return '予定は牢屋じゃねぇ。今日の自分を助ける地図だ。';
+        if (stats.percent >= 100) return '全部終わった？ じゃあ胸張れ。糖分も補給しとけ。';
+        if (stats.percent >= 60) return 'おう、流れはできてる。あとは一個ずつ畳むだけだ。';
+        if (stats.completed > 0) return '一個終わったなら十分火はついてる。次は小さいやつから行け。';
+        return 'ラスボスから殴るな。雑魚敵、つまり5分タスクから倒せ。';
+      }
+
+      function renderTasks() {
+        const list = selectedTasks();
+        const box = $('#taskList');
+        box.innerHTML = '';
+
+        if (!list.length) {
+          const hasHidden = state.profile.hideDone && state.tasks.some(t => t.date === state.selectedDate && t.completedAt);
+          box.innerHTML = `<div class="empty">${hasHidden ? '完了済みを隠している。表示ボタンで戻せる。' : 'この日のミッションはまだない。まずは「5分で着手できるもの」を1つ登録しよう。'}</div>`;
+          return;
+        }
+
+        list.forEach(task => {
+          const card = document.createElement('article');
+          card.className = `task-card ${task.completedAt ? 'done' : ''}`;
+          card.innerHTML = `
+            <div>
+              <h3 class="task-title">${escapeHtml(task.title)}</h3>
+              <div class="task-meta">
+                ${timeTag(task)}
+                <span class="tag ${modeClass(task.mode)}">${modeLabel(task.mode)}</span>
+                <span class="tag">${energyLabel(task.energy)}</span>
+                <span class="wage-note ${wageTypeClass(task.wageType)}">${escapeHtml(missionWageLabel(taskPlannedMinutes(task), task.wageType))}</span>
+                ${overdueTag(task)}
+              </div>
+              ${task.miniStart ? `<p class="task-note"><strong>最初の一手：</strong>${escapeHtml(task.miniStart)}</p>` : ''}
+              ${task.note ? `<p class="task-note">${escapeHtml(task.note)}</p>` : ''}
+            </div>
+            <div class="task-actions">
+              ${task.completedAt ? `<button class="btn small" data-action="undo" data-id="${task.id}">戻す</button>` : `<button class="btn primary small" data-action="complete" data-id="${task.id}">クリア！</button>`}
+              <button class="btn small" data-action="transfer" data-id="${task.id}">砂時計へ転記</button>
+              <button class="btn blue small" data-action="focus" data-id="${task.id}">集中</button>
+              <button class="btn small" data-action="edit" data-id="${task.id}">編集</button>
+              <button class="btn danger small" data-action="delete" data-id="${task.id}">削除</button>
+            </div>
+          `;
+          box.appendChild(card);
+        });
+
+        box.querySelectorAll('button[data-action]').forEach(btn => {
+          btn.addEventListener('click', () => handleTaskAction(btn.dataset.action, btn.dataset.id));
+        });
+      }
+
+      function timeTag(task) {
+        if (task.start && task.end) return `<span class="tag">${task.start}〜${task.end}</span>`;
+        if (task.start) return `<span class="tag">${task.start}開始目安</span>`;
+        return '<span class="tag">時間自由</span>';
+      }
+
+      function modeClass(mode) {
+        return mode === 'must' ? 'must' : mode === 'free' ? 'free' : 'softmode';
+      }
+
+      function modeLabel(mode) {
+        return mode === 'must' ? '固定' : mode === 'free' ? '自由' : 'ゆる固定';
+      }
+
+      function energyLabel(energy) {
+        return energy === 'heavy' ? '重い' : energy === 'light' ? '軽い' : '普通';
+      }
+
+      function overdueTag(task) {
+        if (task.completedAt || task.date !== todayKey() || !task.end) return '';
+        const now = new Date();
+        const current = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        if (current > task.end) return '<span class="tag warn">再配置OK</span>';
+        return '';
+      }
+
+      async function handleTaskAction(action, id) {
+        const task = state.tasks.find(t => t.id === id);
+        if (!task) return;
+
+        if (action === 'complete') completeTask(task);
+        if (action === 'undo') undoTask(task);
+        if (action === 'transfer') transferTaskToHourglass(task, false);
+        if (action === 'focus') transferTaskToHourglass(task, true);
+        if (action === 'edit') editTask(task);
+        if (action === 'delete') {
+          const ok = await confirmAction('ミッション削除', `「${task.title}」を削除する？`);
+          if (!ok) return;
+          setUndoPoint('ミッション削除');
+          state.tasks = state.tasks.filter(t => t.id !== id);
+          saveState();
+          renderAll();
+          toast('削除した。予定の棚卸しも立派な仕事だ。');
+        }
+      }
+
+      function completeTask(task) {
+        if (task.completedAt) return;
+        setUndoPoint('クリア');
+        const now = new Date();
+        task.completedAt = now.toISOString();
+        task.completedTime = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        addHistory(task);
+        saveState();
+        renderAll();
+        celebrate();
+        playSound('complete');
+        toast(`「${task.title}」クリア。予定時間を賃金換算に入れた。よくやった。`);
+      }
+
+      function undoTask(task) {
+        if (!task.completedAt) return;
+        setUndoPoint('クリア戻し');
+        task.completedAt = '';
+        task.completedTime = '';
+        removeHistoryTask(task.id, task.date);
+        saveState();
+        renderAll();
+        toast('クリアを戻した。間違えて押しただけなら問題ねぇ。');
+      }
+
+      function addHistory(task) {
+        const key = task.date;
+        state.history[key] ||= { logged: false, entries: [] };
+        state.history[key].entries = state.history[key].entries.filter(e => e.taskId !== task.id);
+        state.history[key].entries.push({
+          taskId: task.id,
+          title: task.title,
+          start: task.start || '',
+          end: task.end || '',
+          plannedMinutes: taskPlannedMinutes(task),
+          wageType: normalizeWageType(task.wageType),
+          wageYen: missionWageYen(taskPlannedMinutes(task)),
+          signedWageYen: signedWageYen(missionWageYen(taskPlannedMinutes(task)), task.wageType),
+          completedAt: task.completedAt,
+          completedTime: task.completedTime,
+          earlyText: earlyText(task)
+        });
+      }
+
+      function removeHistoryTask(taskId, date) {
+        if (!state.history[date]) return;
+        state.history[date].entries = (state.history[date].entries || []).filter(e => e.taskId !== taskId);
+      }
+
+      function earlyText(task) {
+        if (!task.end || !task.completedTime) return '';
+        const [eh, em] = task.end.split(':').map(Number);
+        const [ch, cm] = task.completedTime.split(':').map(Number);
+        const diff = (eh * 60 + em) - (ch * 60 + cm);
+        if (diff > 0) return `予定より${diff}分早く終了`;
+        if (diff === 0) return '予定ぴったり終了';
+        return `予定より${Math.abs(diff)}分後に終了。でも完了は完了。`;
+      }
+
+      function editTask(task) {
+        $('#formTitle').textContent = 'ミッション編集';
+        $('#taskId').value = task.id;
+        $('#taskTitle').value = task.title || '';
+        $('#taskDate').value = task.date || state.selectedDate;
+        $('#taskStart').value = task.start || '';
+        $('#taskEnd').value = task.end || '';
+        $('#taskMode').value = task.mode || 'soft';
+        $('#taskEnergy').value = task.energy || 'normal';
+        $('#taskWageType').value = normalizeWageType(task.wageType);
+        $('#taskMiniStart').value = task.miniStart || '';
+        $('#taskNote').value = task.note || '';
+        setTab('add');
+      }
+
+      function resetTaskForm() {
+        $('#formTitle').textContent = 'ミッション追加';
+        $('#taskForm').reset();
+        $('#taskId').value = '';
+        $('#taskDate').value = state.selectedDate || todayKey();
+        $('#taskMode').value = 'soft';
+        $('#taskEnergy').value = 'normal';
+        $('#taskWageType').value = 'salary';
+      }
+
+      function saveTaskFromForm() {
+        const id = $('#taskId').value;
+        const title = $('#taskTitle').value.trim();
+        if (!title) return toast('ミッション名が空だ。名前がないと倒す敵もわからねぇ。');
+
+        const payload = {
+          title,
+          date: $('#taskDate').value || state.selectedDate || todayKey(),
+          start: $('#taskStart').value,
+          end: $('#taskEnd').value,
+          mode: $('#taskMode').value,
+          energy: $('#taskEnergy').value,
+          wageType: normalizeWageType($('#taskWageType').value),
+          miniStart: $('#taskMiniStart').value.trim(),
+          note: $('#taskNote').value.trim(),
+          updatedAt: new Date().toISOString()
+        };
+
+        if (payload.start && payload.end && payload.start > payload.end) {
+          return toast('開始時間が終了時間より後になってる。時空がねじれてるぞ。');
+        }
+
+        setUndoPoint(id ? 'ミッション更新' : 'ミッション追加');
+
+        if (id) {
+          const task = state.tasks.find(t => t.id === id);
+          if (task) Object.assign(task, payload);
+          toast('ミッションを更新した。');
+        } else {
+          state.tasks.push({
+            id: uid(),
+            completedAt: '',
+            completedTime: '',
+            createdAt: new Date().toISOString(),
+            ...payload
+          });
+          toast('ミッションを追加した。小さく刻めば勝ち筋は見える。');
+        }
+
+        state.selectedDate = payload.date;
+        $('#selectedDate').value = payload.date;
+        saveState();
+        resetTaskForm();
+        renderAll();
+        setTab('today');
+      }
+
+
+      function ensureDhTag(tag, note = `${tag}に使った砂`) {
+        const clean = dhNormalizeTag(tag);
+        if (!clean) return;
+        if (!dhState.tagCatalog.some(theme => theme.tag === clean)) {
+          dhState.tagCatalog.push({ tag: clean, label: clean, note });
+          dhSaveTagCatalog();
+        }
+        if (!dhState.selectedTags.includes(clean)) {
+          dhState.selectedTags.push(clean);
+          dhSaveJSON(DH_STORAGE.tags, dhState.selectedTags);
+        }
+        dhRenderTags();
+      }
+
+      function stripMiniStartLine(text) {
+        return String(text || '')
+          .split(/\r?\n/)
+          .filter(line => !/^\s*最初の一手[：:]\s*/.test(line))
+          .join('\n')
+          .trim();
+      }
+
+      function taskToHourglassText(task) {
+        const lines = [task.title || '集中'];
+        // 砂時計ログへは「今やること」だけを渡す。
+        // 今日のミッションに表示する補助情報「最初の一手」は転記しない。
+        const cleanNote = stripMiniStartLine(task.note);
+        if (cleanNote) lines.push(cleanNote);
+        return lines.filter(Boolean).join('\n');
+      }
+
+      function prepareHourglassFocus(text = '', wageType = 'salary') {
+        if (dhTimer.running) {
+          const ok = window.confirm('砂時計ログが計測中です。現在の計測をリセットして集中を始めますか？');
+          if (!ok) return false;
+          clearInterval(dhTimer.intervalId);
+          dhTimer.intervalId = null;
+          dhTimer.running = false;
+        }
+        dhTimer.mode = 'down';
+        dhApplyDuration(1500, true);
+        ensureDhTag('集中', '集中に使った砂');
+        const noteEl = $('#dhTaskNote');
+        if (noteEl && text) {
+          noteEl.value = text;
+          localStorage.setItem(DH_STORAGE.draft, text);
+        } else if (noteEl && !noteEl.value.trim()) {
+          noteEl.value = '集中';
+          localStorage.setItem(DH_STORAGE.draft, noteEl.value);
+        }
+        const wageEl = $('#dhWageType');
+        if (wageEl) wageEl.value = normalizeWageType(wageType);
+        dhUpdateStatus();
+        setTab('hourglass');
+        return true;
+      }
+
+      function startHourglassFocus(text = '', wageType = 'salary') {
+        if (!prepareHourglassFocus(text, wageType)) return;
+        dhToggleTimer();
+        toast('砂時計ログで25分の集中を始めた。完璧じゃなく、まず着手だ。');
+      }
+
+      function transferTaskToHourglass(task, shouldStart) {
+        const text = taskToHourglassText(task);
+        if (shouldStart) {
+          startHourglassFocus(text, task.wageType);
+          return;
+        }
+        const noteEl = $('#dhTaskNote');
+        if (noteEl) {
+          noteEl.value = text;
+          localStorage.setItem(DH_STORAGE.draft, text);
+        }
+        const wageEl = $('#dhWageType');
+        if (wageEl) wageEl.value = normalizeWageType(task.wageType);
+        setTab('hourglass');
+        dhUpdateStatus();
+        toast('今日のミッションを砂時計ログへ転記した。あとは砂を落とすだけだ。');
+      }
+
+      function dhWageYen(seconds) {
+        return Math.round((Math.max(0, Number(seconds) || 0) / 3600) * CHIBA_MIN_WAGE_YEN);
+      }
+
+      function dhWageLabel(seconds, type = 'salary') {
+        const label = wageTypeLabel(type);
+        return `${label} ${signedWageText(dhWageYen(seconds), type)}`;
+      }
+
+      function dhBuildWageSummary() {
+        const today = dhTodayKey();
+        const summary = { salaryYen: 0, profitYen: 0, lossYen: 0, netYen: 0 };
+        dhState.history.forEach(item => {
+          if (!item || dhTodayKey(item.endedAt) !== today) return;
+          const yen = dhWageYen(item.durationSec);
+          const type = normalizeWageType(item.wageType);
+          if (type === 'loss') {
+            summary.lossYen += yen;
+            summary.netYen -= yen;
+          } else if (type === 'profit') {
+            summary.profitYen += yen;
+            summary.netYen += yen;
+          } else {
+            summary.salaryYen += yen;
+            summary.netYen += yen;
+          }
+        });
+        return summary;
+      }
+
+      function dhFmtYen(value) {
+        return `${Math.round(Number(value) || 0).toLocaleString('ja-JP')}円`;
+      }
+
+      function renderBrainDump() {
+        const list = $('#brainDumpList');
+        if (!list) return;
+        const items = Array.isArray(state.brainDump) ? state.brainDump : [];
+        if (!items.length) {
+          list.innerHTML = '<li class="empty">まだメモは空。思いついたらここに逃がせばいい。</li>';
+          return;
+        }
+        list.innerHTML = items.map(item => `
+          <li class="brain-dump-item">
+            <div>
+              <div class="brain-dump-text">${escapeHtml(item.text)}</div>
+              <p class="soft" style="margin:.35rem 0 0">${escapeHtml(new Date(item.createdAt).toLocaleString('ja-JP'))}</p>
+            </div>
+            <div class="brain-dump-actions">
+              <button class="btn blue small" type="button" data-brain-promote="${escapeHtml(item.id)}">ミッション化</button>
+              <button class="btn danger small" type="button" data-brain-delete="${escapeHtml(item.id)}">削除</button>
+            </div>
+          </li>
+        `).join('');
+        list.querySelectorAll('[data-brain-delete]').forEach(btn => btn.addEventListener('click', () => deleteBrainDump(btn.dataset.brainDelete)));
+        list.querySelectorAll('[data-brain-promote]').forEach(btn => btn.addEventListener('click', () => promoteBrainDump(btn.dataset.brainPromote)));
+      }
+
+      function addBrainDump() {
+        const input = $('#brainDumpText');
+        const text = input?.value.trim();
+        if (!text) return toast('出すものが空だ。空気だけは瓶に詰められねぇ。');
+        state.brainDump ||= [];
+        state.brainDump.unshift({ id: uid(), text, createdAt: new Date().toISOString() });
+        state.brainDump = state.brainDump.slice(0, 80);
+        if (input) input.value = '';
+        saveState();
+        renderBrainDump();
+        toast('頭の外に出した。忘れ防止としては上出来だ。');
+      }
+
+      async function clearBrainDump() {
+        if (!state.brainDump?.length) return;
+        const ok = await confirmAction('頭から出すメモ全削除', '一時メモをすべて削除する？');
+        if (!ok) return;
+        setUndoPoint('一時メモ全削除');
+        state.brainDump = [];
+        saveState();
+        renderBrainDump();
+        toast('一時メモを空にした。');
+      }
+
+      function deleteBrainDump(id) {
+        setUndoPoint('一時メモ削除');
+        state.brainDump = (state.brainDump || []).filter(item => item.id !== id);
+        saveState();
+        renderBrainDump();
+      }
+
+      function promoteBrainDump(id) {
+        const item = (state.brainDump || []).find(x => x.id === id);
+        if (!item) return;
+        setUndoPoint('一時メモのミッション化');
+        state.tasks.push({
+          id: uid(),
+          title: item.text.split('\n')[0].slice(0, 60),
+          date: state.selectedDate || todayKey(),
+          start: '',
+          end: '',
+          mode: 'free',
+          energy: 'light',
+          miniStart: '1分だけ見る',
+          note: item.text,
+          completedAt: '',
+          completedTime: '',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        });
+        state.brainDump = state.brainDump.filter(x => x.id !== id);
+        saveState();
+        renderAll();
+        toast('一時メモをミッション化した。脳内メモから作戦に昇格だ。');
+      }
+
+      function renderTimerOptions() {
+        const select = $('#timerTaskSelect');
+        if (!select) return;
+        const tasks = state.tasks.filter(t => t.date === state.selectedDate && !t.completedAt);
+        select.innerHTML = '<option value="">紐づけなし</option>' + tasks.map(t => `<option value="${t.id}">${escapeHtml(t.title)}</option>`).join('');
+        if (timer.taskId && tasks.some(t => t.id === timer.taskId)) select.value = timer.taskId;
+        else timer.taskId = '';
+      }
+
+      function updateTimerSettings() {
+        if (!$('#focusMinutes')) return;
+        if (!timer.running) {
+          timer.mode = 'focus';
+          timer.remaining = clamp(Number($('#focusMinutes').value) || 25, 1, 120) * 60;
+          renderTimer();
+        }
+      }
+
+      function startTimer() {
+        if (timer.running) return;
+        timer.running = true;
+        if (!timer.remaining) updateTimerSettings();
+        timer.intervalId = setInterval(() => {
+          timer.remaining -= 1;
+          if (timer.remaining <= 0) finishTimerCycle();
+          renderTimer();
+        }, 1000);
+        renderTimer();
+      }
+
+      function pauseTimer() {
+        timer.running = false;
+        clearInterval(timer.intervalId);
+        timer.intervalId = null;
+        renderTimer();
+      }
+
+      function resetTimer() {
+        pauseTimer();
+        timer.mode = 'focus';
+        timer.remaining = clamp(Number($('#focusMinutes')?.value) || 25, 1, 120) * 60;
+        renderTimer();
+      }
+
+      function finishTimerCycle() {
+        playSound('timer');
+        const task = state.tasks.find(t => t.id === timer.taskId);
+        notify('タイマー完了', timer.mode === 'focus' ? '集中完了。休憩に入ろう。' : '休憩終了。次の一手を選ぼう。');
+        toast(timer.mode === 'focus' ? '集中タイム完了。休憩しろ、休憩も仕事だ。' : '休憩終了。次は小さく再開だ。');
+
+        if (timer.mode === 'focus' && task && !task.completedAt) {
+          task.note = [task.note, `25分着手：${new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}`].filter(Boolean).join('\n');
+          saveState();
+        }
+
+        timer.mode = timer.mode === 'focus' ? 'break' : 'focus';
+        timer.remaining = (timer.mode === 'focus'
+          ? clamp(Number($('#focusMinutes')?.value) || 25, 1, 120)
+          : clamp(Number($('#breakMinutes')?.value) || 5, 1, 60)) * 60;
+      }
+
+      function renderTimer() {
+        if (!$('#timerTime')) return;
+        const m = Math.floor(timer.remaining / 60);
+        const s = timer.remaining % 60;
+        $('#timerTime').textContent = `${pad(m)}:${pad(s)}`;
+        $('#timerModeLabel').textContent = timer.mode === 'focus' ? '集中モード' : '休憩モード';
+        $('#timerStartBtn').disabled = timer.running;
+        $('#timerPauseBtn').disabled = !timer.running;
+        const task = state.tasks.find(t => t.id === timer.taskId);
+        $('#timerTaskLabel').textContent = task ? `今の相手：${task.title}` : 'タスク未選択。今は手ぶらでOK。';
+      }
+
+      function addReward() {
+        const title = $('#rewardTitle').value.trim();
+        const cost = clamp(Number($('#rewardCost').value) || 30, 1, 9999);
+        if (!title) return toast('ご褒美名を入れてくれ。空気とは交換できねぇ。');
+        setUndoPoint('ご褒美追加');
+        state.rewards.push({ id: uid(), title, cost, used: [] });
+        $('#rewardForm').reset();
+        $('#rewardCost').value = 30;
+        saveState();
+        renderRewards();
+        toast('ご褒美を追加した。燃料庫が増えたな。');
+      }
+
+      function renderRewards() {
+        const list = $('#rewardList');
+        if (!list) return;
+        list.innerHTML = '';
+        if (!state.rewards.length) {
+          list.innerHTML = '<div class="empty">ご褒美がまだない。小さい報酬を1つ作ろう。</div>';
+          return;
+        }
+        state.rewards.forEach(reward => {
+          const card = document.createElement('article');
+          card.className = 'reward-card';
+          const canUse = state.profile.points >= reward.cost;
+          card.innerHTML = `
+            <h3 class="reward-title">🍓 ${escapeHtml(reward.title)}</h3>
+            <div class="task-meta">
+              <span class="tag">${reward.cost} pt</span>
+              <span class="tag">交換 ${reward.used?.length || 0} 回</span>
+            </div>
+            <div class="toolbar-actions">
+              <button class="btn green small" data-reward="use" data-id="${reward.id}" ${canUse ? '' : 'disabled'}>交換する</button>
+              <button class="btn danger small" data-reward="delete" data-id="${reward.id}">削除</button>
+            </div>
+          `;
+          list.appendChild(card);
+        });
+
+        list.querySelectorAll('button[data-reward]').forEach(btn => {
+          btn.addEventListener('click', () => handleReward(btn.dataset.reward, btn.dataset.id));
+        });
+      }
+
+      async function handleReward(action, id) {
+        const reward = state.rewards.find(r => r.id === id);
+        if (!reward) return;
+        if (action === 'use') {
+          if (state.profile.points < reward.cost) return;
+          const ok = await confirmAction('ご褒美交換', `「${reward.title}」と${reward.cost}ptを交換する？`);
+          if (!ok) return;
+          setUndoPoint('ご褒美交換');
+          state.profile.points -= reward.cost;
+          reward.used ||= [];
+          reward.used.push(new Date().toISOString());
+          saveState();
+          renderAll();
+          celebrate();
+          toast('交換完了。ちゃんと休め。休むまでが任務だ。');
+        }
+        if (action === 'delete') {
+          const ok = await confirmAction('ご褒美削除', `「${reward.title}」を削除する？`);
+          if (!ok) return;
+          setUndoPoint('ご褒美削除');
+          state.rewards = state.rewards.filter(r => r.id !== id);
+          saveState();
+          renderRewards();
+          toast('ご褒美を削除した。');
+        }
+      }
+
+      function renderHistory() {
+        renderWeeklyChart();
+        const list = $('#historyList');
+        const entries = [];
+        Object.keys(state.history).sort().reverse().forEach(date => {
+          (state.history[date].entries || []).slice().reverse().forEach(entry => entries.push({ date, ...entry }));
+        });
+
+        if (!entries.length) {
+          list.innerHTML = '<div class="empty">履歴はまだない。最初のクリアをここに刻もう。</div>';
+          return;
+        }
+
+        list.innerHTML = entries.map(e => `
+          <article class="history-card">
+            <h3 class="history-title">${escapeHtml(e.title)}</h3>
+            <div class="task-meta">
+              <span class="tag">${dateLabel(e.date)}</span>
+              <span class="tag">${escapeHtml(e.completedTime || '')}</span>
+              <span class="wage-note ${wageTypeClass(e.wageType)}">${escapeHtml(missionWageLabel(Number(e.plannedMinutes) || 0, e.wageType))}</span>
+              ${e.earlyText ? `<span class="tag green">${escapeHtml(e.earlyText)}</span>` : ''}
+            </div>
+          </article>
+        `).join('');
+      }
+
+      function renderWeeklyChart() {
+        const chart = $('#weeklyChart');
+        const today = new Date(`${todayKey()}T00:00:00`);
+        const days = [];
+        for (let i = 6; i >= 0; i--) {
+          const d = new Date(today);
+          d.setDate(today.getDate() - i);
+          const key = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+          const stats = todayStats(key);
+          days.push({ key, label: d.toLocaleDateString('ja-JP', { weekday: 'short' }), percent: stats.percent, completed: stats.completed, total: stats.total });
+        }
+        chart.innerHTML = days.map(d => {
+          const h = Math.max(8, d.percent * 1.34);
+          return `
+            <div class="daybar" title="${dateLabel(d.key)} ${d.completed}/${d.total}">
+              <i style="height:${h}px"></i>
+              <span>${d.label}</span>
+              <span>${d.percent}%</span>
+            </div>
+          `;
+        }).join('');
+      }
+
+      function renderSettings() {
+        $('#goalInput').value = state.profile.goal;
+        $('#soundSelect').value = state.profile.sound;
+      }
+
+      async function sealDay() {
+        const key = state.selectedDate;
+        const stats = todayStats(key);
+        state.history[key] ||= { logged: false, entries: [] };
+        if (state.history[key].logged) {
+          toast('この日はもうログ済み。二重取りは銀さんでも怒られるやつだ。');
+          return;
+        }
+        const ok = await confirmAction('今日をしめる', `${dateLabel(key)} をログとして記録する？ 押し間違えても、直前操作の取り消しで戻せる。`);
+        if (!ok) return;
+        setUndoPoint('今日をしめる');
+        state.history[key].logged = true;
+        updateStreak(key);
+        saveState();
+        renderAll();
+        celebrate();
+        toast(stats.completed >= (state.profile.goal || 3)
+          ? '今日の基準クリア。達成分を賃金換算で記録した。'
+          : '今日はここまでログ。部分クリアも、達成分として残す。');
+      }
+
+      function updateStreak(key) {
+        const last = state.profile.lastLoggedDate;
+        if (!last) {
+          state.profile.streak = 1;
+        } else {
+          const lastDate = new Date(`${last}T00:00:00`);
+          const current = new Date(`${key}T00:00:00`);
+          const diff = Math.round((current - lastDate) / 86400000);
+          if (diff === 1) state.profile.streak += 1;
+          else if (diff === 0) state.profile.streak = Math.max(1, state.profile.streak);
+          else state.profile.streak = 1;
+        }
+        state.profile.lastLoggedDate = key;
+      }
+
+      async function askNotificationPermission() {
+        if (!('Notification' in window)) {
+          toast('このブラウザは通知に対応してない。画面内アラームで知らせる。');
+          return;
+        }
+        try {
+          const result = await Notification.requestPermission();
+          state.profile.notified = result === 'granted';
+          saveState();
+          toast(result === 'granted' ? '通知を使えるようにした。' : '通知は許可されなかった。画面内アラームでいく。');
+        } catch (e) {
+          toast('通知の許可に失敗した。ローカルファイルでは制限されることがある。');
+        }
+      }
+
+      function startAlarmLoop() {
+        setInterval(() => {
+          const now = new Date();
+          const key = todayKey();
+          const time = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+          state.tasks.forEach(task => {
+            if (task.date !== key || task.completedAt || !task.start) return;
+            const alarmKey = `${key}:${task.id}:${task.start}`;
+            if (state.alarmed[alarmKey]) return;
+            if (time === task.start) {
+              state.alarmed[alarmKey] = true;
+              saveState();
+              playSound('timer');
+              notify('開始目安', `そろそろ「${task.title}」の時間だ。最初の一手だけでいい。`);
+              toast(`そろそろ「${task.title}」。まずは最初の一手だけでいい。`);
+            }
+          });
+        }, 30000);
+      }
+
+      function notify(title, body) {
+        if ('Notification' in window && Notification.permission === 'granted') {
+          try { new Notification(title, { body }); } catch (e) { /* fallback only */ }
+        }
+      }
+
+      function playSound(type) {
+        if (state.profile.sound === 'off') return;
+        try {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (!AudioContext) return;
+          const ctx = new AudioContext();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = type === 'complete' ? 660 : 440;
+          gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.16, ctx.currentTime + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.22);
+          osc.connect(gain).connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.24);
+        } catch (e) { /* Sound is optional */ }
+      }
+
+      function celebrate() {
+        const zone = $('#confetti');
+        zone.innerHTML = '';
+        const colors = ['#ff9f43', '#55c7f3', '#8bd17c', '#ffd166', '#e75f65'];
+        for (let i = 0; i < 34; i++) {
+          const piece = document.createElement('b');
+          piece.style.left = `${Math.random() * 100}%`;
+          piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+          piece.style.animationDelay = `${Math.random() * .25}s`;
+          piece.style.transform = `rotate(${Math.random() * 180}deg)`;
+          zone.appendChild(piece);
+        }
+        setTimeout(() => zone.innerHTML = '', 1600);
+      }
+
+      function toast(message) {
+        const zone = $('#toastZone');
+        const item = document.createElement('div');
+        item.className = 'toast';
+        const body = document.createElement('div');
+        body.textContent = message;
+        item.appendChild(body);
+
+        if (undoRecord?.state && !message.includes('取り消した')) {
+          const undoBtn = document.createElement('button');
+          undoBtn.type = 'button';
+          undoBtn.textContent = `↩ ${undoRecord.label || '直前操作'}を取り消す`;
+          undoBtn.addEventListener('click', () => undoLastAction());
+          item.appendChild(undoBtn);
+        }
+
+        zone.appendChild(item);
+        setTimeout(() => {
+          item.style.opacity = '0';
+          item.style.transform = 'translateY(8px)';
+          setTimeout(() => item.remove(), 240);
+        }, 5200);
+      }
+
+      function confirmAction(title, message) {
+        const dialog = $('#confirmDialog');
+        $('#dialogTitle').textContent = title;
+        $('#dialogMessage').textContent = message;
+        return new Promise(resolve => {
+          const ok = $('#dialogOk');
+          const cancel = $('#dialogCancel');
+          const cleanup = result => {
+            ok.removeEventListener('click', onOk);
+            cancel.removeEventListener('click', onCancel);
+            dialog.removeEventListener('cancel', onCancel);
+            if (dialog.open) dialog.close();
+            resolve(result);
+          };
+          const onOk = () => cleanup(true);
+          const onCancel = () => cleanup(false);
+          ok.addEventListener('click', onOk);
+          cancel.addEventListener('click', onCancel);
+          dialog.addEventListener('cancel', onCancel);
+          if (typeof dialog.showModal === 'function') dialog.showModal();
+          else cleanup(window.confirm(message));
+        });
+      }
+
+      function exportData() {
+        const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `yorozu-mission-${todayKey()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast('データを書き出した。');
+      }
+
+      function importData(event) {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const parsed = JSON.parse(reader.result);
+            setUndoPoint('データ読み込み');
+            state = deepMerge(defaultState(), parsed);
+            saveState();
+            renderAll();
+            toast('データを読み込んだ。');
+          } catch (e) {
+            toast('読み込みに失敗した。JSONファイルか確認してくれ。');
+          }
+        };
+        reader.readAsText(file);
+        event.target.value = '';
+      }
+
+      function escapeHtml(str) {
+        return String(str ?? '').replace(/[&<>'"]/g, ch => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+        }[ch]));
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>
