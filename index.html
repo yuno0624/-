@@ -1431,6 +1431,61 @@
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
     }
+
+    /* GitHub同期：PC⇄スマホ引き継ぎ */
+    .sync-box {
+      border: 1px solid rgba(45, 80, 130, .16);
+      background: linear-gradient(135deg, rgba(235, 247, 255, .78), rgba(255, 250, 239, .82));
+      border-radius: 18px;
+      padding: 16px;
+      margin-top: 12px;
+    }
+    .sync-status {
+      display: grid;
+      gap: 6px;
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(45, 80, 130, .14);
+      background: rgba(255,255,255,.62);
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .sync-status strong { color: var(--ink); }
+    .sync-status .mono,
+    .sync-mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      word-break: break-all;
+      color: #334155;
+    }
+    .sync-check {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      min-height: 48px;
+      padding: 10px 12px;
+      border: 1px solid rgba(45, 80, 130, .12);
+      border-radius: 14px;
+      background: rgba(255,255,255,.54);
+      color: var(--ink);
+      cursor: pointer;
+    }
+    .sync-check input { width: 18px; height: 18px; }
+    .sync-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      width: max-content;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(20, 184, 166, .12);
+      color: #0f766e;
+      font-weight: 800;
+      font-size: .86rem;
+    }
+    .sync-pill.warn { background: rgba(245, 158, 11, .14); color: #92400e; }
+    .sync-pill.err { background: rgba(239, 68, 68, .12); color: #991b1b; }
+
   </style>
 </head>
 <body>
@@ -1897,6 +1952,47 @@
               </div>
             </div>
           </details>
+
+          <details class="manual" style="margin-top:12px" open>
+            <summary>GitHub同期（PC ⇄ スマホ）</summary>
+            <div class="manual-content">
+              <p>GitHub Pagesは表示用の静的ページなので、このHTMLからリポジトリへ直接保存するのではなく、GitHub Gistを同期用の小さな保管庫として使います。トークンはHTMLには書き込まず、この端末のブラウザ内にだけ保存します。</p>
+              <div class="sync-box">
+                <div class="form-grid">
+                  <div class="field full">
+                    <label for="syncToken">GitHub Personal Access Token</label>
+                    <input id="syncToken" type="password" autocomplete="off" placeholder="gist権限だけを付けたトークンを貼り付ける" />
+                    <div class="wage-help">公開中のHTMLファイルにトークンを直接書かないこと。ここへ入力した値は、この端末のlocalStorageにだけ保存されます。</div>
+                  </div>
+                  <div class="field">
+                    <label for="syncGistId">Gist ID</label>
+                    <input id="syncGistId" placeholder="初回は空欄でOK。保存時に自動作成" />
+                  </div>
+                  <div class="field">
+                    <label for="syncFileName">同期ファイル名</label>
+                    <input id="syncFileName" value="yorozu-mission-sync.json" />
+                  </div>
+                  <div class="field full">
+                    <label class="sync-check" for="syncAutoEnabled">
+                      <input id="syncAutoEnabled" type="checkbox" />
+                      <span><strong>2分ごとに自動同期する</strong><br><small>PCで記録 → Gistへ保存 → スマホで読み込み、またはその逆を行います。</small></span>
+                    </label>
+                  </div>
+                </div>
+                <div class="toolbar-actions" style="margin-top:12px">
+                  <button class="btn primary" id="syncSaveSettingsBtn" type="button">同期設定を保存</button>
+                  <button class="btn blue" id="syncNowBtn" type="button">今すぐ同期</button>
+                  <button class="btn" id="syncPushBtn" type="button">GitHubへ保存</button>
+                  <button class="btn" id="syncPullBtn" type="button">GitHubから読み込み</button>
+                  <button class="btn ghost" id="syncCopyGistBtn" type="button">Gist IDをコピー</button>
+                </div>
+                <div class="sync-status" id="syncStatusBox">
+                  <span class="sync-pill warn">未設定</span>
+                  <span>トークンを入れて「同期設定を保存」を押すと、手動保存または2分ごとの自動同期が使えます。</span>
+                </div>
+              </div>
+            </div>
+          </details>
         </section>
       </main>
     </div>
@@ -1947,6 +2043,8 @@
 
       const STORAGE_KEY = 'yorozuMissionSchedule.v1';
       const UNDO_KEY = 'yorozuMissionSchedule.undo.v1';
+      const SYNC_SETTINGS_KEY = 'yorozuMissionSchedule.githubSync.v1';
+      const SYNC_FILE_DEFAULT = 'yorozu-mission-sync.json';
       const pad = n => String(n).padStart(2, '0');
       const todayKey = () => {
         const d = new Date();
@@ -1984,6 +2082,9 @@
 
       let state = loadState();
       let undoRecord = loadUndoRecord();
+      let syncSettings = loadSyncSettings();
+      let syncTimerId = null;
+      let syncApplyingRemote = false;
       let timer = {
         mode: 'focus',
         running: false,
@@ -2061,6 +2162,7 @@
 
       function dhSaveJSON(key, value) {
         localStorage.setItem(key, JSON.stringify(value));
+        markSyncDirty('砂時計ログ更新');
       }
 
       function dhNormalizeTag(value) {
@@ -2705,10 +2807,12 @@
         }));
         $('#dhTaskNote')?.addEventListener('input', () => {
           localStorage.setItem(DH_STORAGE.draft, $('#dhTaskNote').value);
+          markSyncDirty('砂時計メモ更新');
           dhUpdateStatus();
         });
         $('#dhBirthDate')?.addEventListener('change', () => {
           localStorage.setItem(DH_STORAGE.birth, $('#dhBirthDate').value);
+          markSyncDirty('生年月日更新');
           dhUpdateLife();
         });
         $('#dhNoiseVolume')?.addEventListener('input', () => {
@@ -2788,6 +2892,7 @@
 
       function saveState() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        markSyncDirty('ミッション手帳更新');
       }
 
       function cloneForUndo(value) {
@@ -2865,12 +2970,15 @@
         bindEvents();
         dhInit();
         renderAll();
+        renderSyncPanel();
+        scheduleAutoSync();
         startAlarmLoop();
       }
 
       function bindEvents() {
         $$('.tab-btn').forEach(btn => btn.addEventListener('click', () => setTab(btn.dataset.tab)));
         $$('[data-tab-go]').forEach(btn => btn.addEventListener('click', () => setTab(btn.dataset.tabGo)));
+        bindSyncEvents();
 
         $('#selectedDate').addEventListener('change', e => {
           state.selectedDate = e.target.value || todayKey();
@@ -3849,6 +3957,7 @@
       function renderSettings() {
         $('#goalInput').value = state.profile.goal;
         $('#soundSelect').value = state.profile.sound;
+        renderSyncPanel();
       }
 
       async function sealDay() {
@@ -4008,6 +4117,330 @@
           if (typeof dialog.showModal === 'function') dialog.showModal();
           else cleanup(window.confirm(message));
         });
+      }
+
+
+      function loadSyncSettings() {
+        const fallback = {
+          token: '',
+          gistId: '',
+          fileName: SYNC_FILE_DEFAULT,
+          auto: false,
+          localDirty: false,
+          localUpdatedAt: '',
+          lastSyncedAt: '',
+          lastRemoteUpdatedAt: '',
+          lastStatus: '未設定',
+          lastError: '',
+          deviceId: `device-${uid()}`
+        };
+        try {
+          const raw = localStorage.getItem(SYNC_SETTINGS_KEY);
+          return raw ? { ...fallback, ...JSON.parse(raw) } : fallback;
+        } catch (error) {
+          return fallback;
+        }
+      }
+
+      function saveSyncSettings(silent = false) {
+        localStorage.setItem(SYNC_SETTINGS_KEY, JSON.stringify(syncSettings));
+        if (!silent) {
+          renderSyncPanel();
+          scheduleAutoSync();
+        }
+      }
+
+      function markSyncDirty(reason = '更新') {
+        if (syncApplyingRemote) return;
+        syncSettings.localDirty = true;
+        syncSettings.localUpdatedAt = new Date().toISOString();
+        syncSettings.lastStatus = `${reason}：未同期`;
+        syncSettings.lastError = '';
+        saveSyncSettings(true);
+        renderSyncStatus();
+      }
+
+      function collectSyncSettingsFromUI() {
+        const tokenEl = $('#syncToken');
+        const gistEl = $('#syncGistId');
+        const fileEl = $('#syncFileName');
+        const autoEl = $('#syncAutoEnabled');
+        if (!tokenEl || !gistEl || !fileEl || !autoEl) return;
+        syncSettings.token = tokenEl.value.trim();
+        syncSettings.gistId = gistEl.value.trim();
+        syncSettings.fileName = fileEl.value.trim() || SYNC_FILE_DEFAULT;
+        syncSettings.auto = !!autoEl.checked;
+        syncSettings.lastError = '';
+        saveSyncSettings(false);
+        toast('GitHub同期設定を保存した。トークンはこの端末のブラウザ内だけに置く。');
+      }
+
+      function renderSyncPanel() {
+        const tokenEl = $('#syncToken');
+        const gistEl = $('#syncGistId');
+        const fileEl = $('#syncFileName');
+        const autoEl = $('#syncAutoEnabled');
+        if (!tokenEl || !gistEl || !fileEl || !autoEl) return;
+        tokenEl.value = syncSettings.token || '';
+        gistEl.value = syncSettings.gistId || '';
+        fileEl.value = syncSettings.fileName || SYNC_FILE_DEFAULT;
+        autoEl.checked = !!syncSettings.auto;
+        renderSyncStatus();
+      }
+
+      function renderSyncStatus(message = '') {
+        const box = $('#syncStatusBox');
+        if (!box) return;
+        const hasToken = !!syncSettings.token;
+        const hasGist = !!syncSettings.gistId;
+        const dirty = !!syncSettings.localDirty;
+        const pillClass = syncSettings.lastError ? 'err' : dirty ? 'warn' : hasToken ? '' : 'warn';
+        const pillText = syncSettings.lastError ? 'エラー' : dirty ? '未同期あり' : hasToken ? '同期準備OK' : '未設定';
+        const gistText = hasGist ? `<span>Gist ID：<span class="sync-mono">${escapeHtml(syncSettings.gistId)}</span></span>` : '<span>Gist ID：未作成（初回保存で自動作成）</span>';
+        const lastSynced = syncSettings.lastSyncedAt ? new Date(syncSettings.lastSyncedAt).toLocaleString('ja-JP') : 'まだ同期していない';
+        const localUpdated = syncSettings.localUpdatedAt ? new Date(syncSettings.localUpdatedAt).toLocaleString('ja-JP') : 'まだ変更なし';
+        box.innerHTML = `
+          <span class="sync-pill ${pillClass}">${pillText}</span>
+          <span>${escapeHtml(message || syncSettings.lastStatus || '同期設定を保存してください。')}</span>
+          ${gistText}
+          <span>最終同期：${escapeHtml(lastSynced)} ／ ローカル最終更新：${escapeHtml(localUpdated)}</span>
+          <span>自動同期：${syncSettings.auto ? 'ON（2分ごと）' : 'OFF'} ／ ファイル：<span class="sync-mono">${escapeHtml(syncSettings.fileName || SYNC_FILE_DEFAULT)}</span></span>
+          ${syncSettings.lastError ? `<span>詳細：${escapeHtml(syncSettings.lastError)}</span>` : ''}
+        `;
+      }
+
+      function bindSyncEvents() {
+        $('#syncSaveSettingsBtn')?.addEventListener('click', collectSyncSettingsFromUI);
+        $('#syncNowBtn')?.addEventListener('click', () => githubSmartSync(false));
+        $('#syncPushBtn')?.addEventListener('click', () => githubPush(false));
+        $('#syncPullBtn')?.addEventListener('click', () => githubPull(false));
+        $('#syncCopyGistBtn')?.addEventListener('click', async () => {
+          if (!syncSettings.gistId) return toast('まだGist IDがない。先にGitHubへ保存して作る。');
+          try {
+            await navigator.clipboard.writeText(syncSettings.gistId);
+            toast('Gist IDをコピーした。スマホ側の設定に貼り付ければ引き継げる。');
+          } catch (error) {
+            toast(`Gist ID：${syncSettings.gistId}`);
+          }
+        });
+      }
+
+      function scheduleAutoSync() {
+        if (syncTimerId) clearInterval(syncTimerId);
+        syncTimerId = null;
+        if (!syncSettings.auto) return;
+        syncTimerId = setInterval(() => githubSmartSync(true), 120000);
+      }
+
+      function buildSyncBundle() {
+        const updatedAt = syncSettings.localUpdatedAt || new Date().toISOString();
+        return {
+          version: 4,
+          app: 'yorozu-mission-schedule',
+          meta: {
+            updatedAt,
+            exportedAt: new Date().toISOString(),
+            deviceId: syncSettings.deviceId,
+            note: 'Generated by Yorozu Mission Schedule GitHub Sync'
+          },
+          state,
+          dreamHourglass: {
+            history: dhState.history,
+            tagCatalog: dhState.tagCatalog,
+            selectedTags: dhState.selectedTags,
+            birthDate: localStorage.getItem(DH_STORAGE.birth) || '',
+            draft: localStorage.getItem(DH_STORAGE.draft) || '',
+            wageType: $('#dhWageType')?.value || 'salary'
+          }
+        };
+      }
+
+      function applySyncBundle(bundle) {
+        if (!bundle || bundle.app !== 'yorozu-mission-schedule' || !bundle.state) {
+          throw new Error('同期データの形式が違います。');
+        }
+        syncApplyingRemote = true;
+        try {
+          state = deepMerge(defaultState(), bundle.state);
+          const dh = bundle.dreamHourglass || {};
+          dhState.history = Array.isArray(dh.history) ? dh.history : [];
+          dhState.tagCatalog = Array.isArray(dh.tagCatalog) && dh.tagCatalog.length ? dh.tagCatalog : DH_DEFAULT_TAGS.map(item => ({ ...item }));
+          dhState.selectedTags = Array.isArray(dh.selectedTags) ? dh.selectedTags : [];
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          localStorage.setItem(DH_STORAGE.history, JSON.stringify(dhState.history));
+          localStorage.setItem(DH_STORAGE.catalog, JSON.stringify(dhState.tagCatalog.map(theme => ({ tag: theme.tag, label: theme.label, note: theme.note }))));
+          localStorage.setItem(DH_STORAGE.tags, JSON.stringify(dhState.selectedTags));
+          localStorage.setItem(DH_STORAGE.birth, typeof dh.birthDate === 'string' ? dh.birthDate : '');
+          localStorage.setItem(DH_STORAGE.draft, typeof dh.draft === 'string' ? dh.draft : '');
+          if ($('#dhWageType') && dh.wageType) $('#dhWageType').value = normalizeWageType(dh.wageType);
+        } finally {
+          syncApplyingRemote = false;
+        }
+
+        $('#selectedDate').value = state.selectedDate || todayKey();
+        $('#taskDate').value = state.selectedDate || todayKey();
+        $('#goalInput').value = state.profile.goal;
+        $('#soundSelect').value = state.profile.sound;
+        if ($('#dhBirthDate')) $('#dhBirthDate').value = localStorage.getItem(DH_STORAGE.birth) || '';
+        if ($('#dhTaskNote')) $('#dhTaskNote').value = localStorage.getItem(DH_STORAGE.draft) || '';
+        dhRenderTags();
+        dhRenderHistory();
+        dhUpdateModeUI();
+        dhUpdateDisplay();
+        dhUpdateStatus();
+        dhUpdateNow();
+        renderAll();
+      }
+
+      function syncFileName() {
+        return (syncSettings.fileName || SYNC_FILE_DEFAULT).trim() || SYNC_FILE_DEFAULT;
+      }
+
+      async function githubRequest(path, options = {}) {
+        if (!syncSettings.token) throw new Error('GitHubトークンが未設定です。');
+        const response = await fetch(`https://api.github.com${path}`, {
+          ...options,
+          headers: {
+            'Accept': 'application/vnd.github+json',
+            'X-GitHub-Api-Version': '2022-11-28',
+            'Authorization': `Bearer ${syncSettings.token}`,
+            ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+            ...(options.headers || {})
+          }
+        });
+        if (!response.ok) {
+          const text = await response.text().catch(() => '');
+          throw new Error(`GitHub API ${response.status}: ${text.slice(0, 240)}`);
+        }
+        return response.status === 204 ? null : response.json();
+      }
+
+      async function readBundleFromGist() {
+        if (!syncSettings.gistId) throw new Error('Gist IDが未設定です。');
+        const gist = await githubRequest(`/gists/${encodeURIComponent(syncSettings.gistId)}`);
+        const name = syncFileName();
+        const file = gist.files?.[name] || Object.values(gist.files || {}).find(f => /yorozu|mission|sync|json/i.test(f.filename || '')) || Object.values(gist.files || {})[0];
+        if (!file) throw new Error('Gist内に同期ファイルが見つかりません。');
+        let content = file.content || '';
+        if (file.truncated && file.raw_url) {
+          const raw = await fetch(file.raw_url);
+          if (!raw.ok) throw new Error(`Gist raw取得失敗: ${raw.status}`);
+          content = await raw.text();
+        }
+        const bundle = JSON.parse(content);
+        return { gist, bundle };
+      }
+
+      async function githubPush(auto = false) {
+        if (auto && (!syncSettings.auto || !syncSettings.token)) return;
+        renderSyncStatus('GitHubへ保存中…');
+        try {
+          const bundle = buildSyncBundle();
+          const content = JSON.stringify(bundle, null, 2);
+          const body = {
+            description: 'よろずミッション手帳 同期データ',
+            files: { [syncFileName()]: { content } }
+          };
+          let gist;
+          if (syncSettings.gistId) {
+            gist = await githubRequest(`/gists/${encodeURIComponent(syncSettings.gistId)}`, {
+              method: 'PATCH',
+              body: JSON.stringify(body)
+            });
+          } else {
+            gist = await githubRequest('/gists', {
+              method: 'POST',
+              body: JSON.stringify({ ...body, public: false })
+            });
+            syncSettings.gistId = gist.id;
+          }
+          syncSettings.localDirty = false;
+          syncSettings.lastSyncedAt = new Date().toISOString();
+          syncSettings.lastRemoteUpdatedAt = bundle.meta.updatedAt;
+          syncSettings.lastStatus = 'GitHubへ保存済み';
+          syncSettings.lastError = '';
+          saveSyncSettings(false);
+          renderSyncStatus('GitHubへ保存した。スマホ側で同じGist IDを入れて読み込める。');
+          if (!auto) toast('GitHubへ保存した。');
+        } catch (error) {
+          syncSettings.lastError = error.message || String(error);
+          syncSettings.lastStatus = 'GitHub保存失敗';
+          saveSyncSettings(true);
+          renderSyncStatus('GitHub保存に失敗した。トークン・Gist ID・通信を確認。');
+          if (!auto) toast('GitHub保存に失敗した。設定を確認してくれ。');
+        }
+      }
+
+      async function githubPull(auto = false) {
+        if (auto && (!syncSettings.auto || !syncSettings.token || !syncSettings.gistId)) return;
+        renderSyncStatus('GitHubから読み込み中…');
+        try {
+          const { bundle } = await readBundleFromGist();
+          applySyncBundle(bundle);
+          syncSettings.localDirty = false;
+          syncSettings.localUpdatedAt = bundle.meta?.updatedAt || new Date().toISOString();
+          syncSettings.lastRemoteUpdatedAt = syncSettings.localUpdatedAt;
+          syncSettings.lastSyncedAt = new Date().toISOString();
+          syncSettings.lastStatus = 'GitHubから読み込み済み';
+          syncSettings.lastError = '';
+          saveSyncSettings(false);
+          renderSyncStatus('GitHubから読み込んだ。PC・スマホ間のデータを反映した。');
+          if (!auto) toast('GitHubから読み込んだ。');
+        } catch (error) {
+          syncSettings.lastError = error.message || String(error);
+          syncSettings.lastStatus = 'GitHub読み込み失敗';
+          saveSyncSettings(true);
+          renderSyncStatus('GitHub読み込みに失敗した。Gist ID・トークンを確認。');
+          if (!auto) toast('GitHub読み込みに失敗した。設定を確認してくれ。');
+        }
+      }
+
+      async function githubSmartSync(auto = false) {
+        if (auto && (!syncSettings.auto || !syncSettings.token)) return;
+        if (!syncSettings.token) {
+          renderSyncStatus('GitHubトークンが未設定。同期設定を保存してください。');
+          if (!auto) toast('GitHubトークンが未設定だ。');
+          return;
+        }
+        if (!syncSettings.gistId) {
+          await githubPush(auto);
+          return;
+        }
+        renderSyncStatus('GitHubと同期中…');
+        try {
+          const { bundle } = await readBundleFromGist();
+          const remoteUpdated = new Date(bundle.meta?.updatedAt || 0).getTime();
+          const localUpdated = new Date(syncSettings.localUpdatedAt || 0).getTime();
+          if (remoteUpdated > localUpdated) {
+            applySyncBundle(bundle);
+            syncSettings.localDirty = false;
+            syncSettings.localUpdatedAt = bundle.meta?.updatedAt || new Date().toISOString();
+            syncSettings.lastRemoteUpdatedAt = syncSettings.localUpdatedAt;
+            syncSettings.lastSyncedAt = new Date().toISOString();
+            syncSettings.lastStatus = 'GitHubの新しいデータを反映';
+            syncSettings.lastError = '';
+            saveSyncSettings(false);
+            renderSyncStatus('GitHub側の新しい記録を反映した。');
+            if (!auto) toast('GitHub側の新しい記録を反映した。');
+            return;
+          }
+          if (syncSettings.localDirty || localUpdated > remoteUpdated) {
+            await githubPush(auto);
+            return;
+          }
+          syncSettings.lastSyncedAt = new Date().toISOString();
+          syncSettings.lastStatus = '同期済み。新しい変更なし';
+          syncSettings.lastError = '';
+          saveSyncSettings(false);
+          renderSyncStatus('同期済み。新しい変更はない。');
+          if (!auto) toast('同期済み。新しい変更はない。');
+        } catch (error) {
+          syncSettings.lastError = error.message || String(error);
+          syncSettings.lastStatus = '同期失敗';
+          saveSyncSettings(true);
+          renderSyncStatus('同期に失敗した。トークン・Gist ID・通信を確認。');
+          if (!auto) toast('同期に失敗した。設定を確認してくれ。');
+        }
       }
 
       function exportData() {
