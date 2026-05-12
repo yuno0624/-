@@ -606,8 +606,15 @@
       function restoreDhActiveTimer() { const saved = state.hourglass?.activeTimer; if (!saved || !saved.startedAt) return; dhTimer = { ...dhTimer, ...saved, running:true, done:false, intervalId:null }; $('#dhStartBtn').textContent = 'Pause'; dhTimer.intervalId = setInterval(dhTickTimer, 250); dhStartAudio(); dhRefreshFromClock(); }
       function dhRefreshFromClock() { if (!dhTimer.running) return; if (dhTimer.mode === 'down') { dhTimer.remain = dhGetRemain(); if (dhTimer.remain <= 0) { dhFinishTimer('auto'); return; } } else { dhTimer.elapsed = dhGetElapsed(); } dhUpdateDisplay(); dhUpdateHourglass(); dhUpdateStatus(); }
       function bindLifecycleRefresh() { const refresh = () => { dhRefreshFromClock(); if (syncSettings.auto && syncSettings.token && syncSettings.localDirty) githubSmartSync(true); }; document.addEventListener('visibilitychange', refresh); window.addEventListener('focus', refresh); window.addEventListener('pageshow', refresh); window.addEventListener('pagehide', () => { if (dhTimer.running) persistDhActiveTimer(); }); }
-      let dhAudio = { ctx:null, noiseSource:null, noiseGain:null };
-      function dhAudioContext() { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; if (!dhAudio.ctx) dhAudio.ctx = new AC(); return dhAudio.ctx; }
+      let dhAudio = { ctx:null, noiseSource:null, noiseGain:null, highpass:null, lowpass:null };
+      function dhAudioContext() {
+        if (!dhAudio.ctx) {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if (!AC) return null;
+          dhAudio.ctx = new AC();
+        }
+        return dhAudio.ctx;
+      }
       function dhRenderAudioLabels() {
         if ($('#dhNoiseVolumeLabel')) $('#dhNoiseVolumeLabel').textContent = `${Math.round(Number($('#dhNoiseVolume')?.value || state.hourglass.noiseVolume || 0))}%`;
       }
@@ -617,31 +624,51 @@
         dhUpdateAudioVolumes();
         saveState();
       }
-      function dhAudioContext() {
-        if (!dhAudio.ctx) {
-          const AC = window.AudioContext || window.webkitAudioContext;
-          if (!AC) return null;
-          dhAudio.ctx = new AC();
+      function dhCreateBrownNoiseBuffer(ctx, seconds = 12) {
+        const length = Math.max(ctx.sampleRate, Math.floor(ctx.sampleRate * seconds));
+        const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        let brown = 0;
+        let max = 0;
+        for (let i = 0; i < length; i += 1) {
+          const white = Math.random() * 2 - 1;
+          brown = (brown * 0.999) + (white * 0.035);
+          data[i] = brown;
+          const abs = Math.abs(brown);
+          if (abs > max) max = abs;
         }
-        return dhAudio.ctx;
+        const normalize = max ? 0.58 / max : 1;
+        for (let i = 0; i < length; i += 1) data[i] *= normalize;
+        return buffer;
       }
       function dhStartNoise() {
         const ctx = dhAudioContext();
         if (!ctx) return;
         if (ctx.state === 'suspended') ctx.resume();
         if (!dhAudio.noiseSource) {
-          const buffer = ctx.createBuffer(1, ctx.sampleRate * 3, ctx.sampleRate);
-          const data = buffer.getChannelData(0);
-          let last = 0;
-          for (let i = 0; i < data.length; i++) { last = (last + 0.02 * (Math.random() * 2 - 1)) / 1.02; data[i] = last * 3.5; }
           const source = ctx.createBufferSource();
-          source.buffer = buffer;
+          source.buffer = dhCreateBrownNoiseBuffer(ctx, 12);
           source.loop = true;
+
+          const highpass = ctx.createBiquadFilter();
+          highpass.type = 'highpass';
+          highpass.frequency.value = 22;
+          highpass.Q.value = 0.55;
+
+          const lowpass = ctx.createBiquadFilter();
+          lowpass.type = 'lowpass';
+          lowpass.frequency.value = 1150;
+          lowpass.Q.value = 0.62;
+
           const gain = ctx.createGain();
           gain.gain.value = 0;
-          source.connect(gain).connect(ctx.destination);
+
+          source.connect(highpass).connect(lowpass).connect(gain).connect(ctx.destination);
           source.start();
+
           dhAudio.noiseSource = source;
+          dhAudio.highpass = highpass;
+          dhAudio.lowpass = lowpass;
           dhAudio.noiseGain = gain;
         }
         dhUpdateAudioVolumes();
@@ -657,7 +684,7 @@
         const noise = clamp(parseInt($('#dhNoiseVolume')?.value, 10) || 0, 0, 100) / 100;
         if (dhAudio.noiseGain) {
           dhAudio.noiseGain.gain.cancelScheduledValues(ctx.currentTime);
-          dhAudio.noiseGain.gain.setTargetAtTime(noise * 0.45, ctx.currentTime, 0.18);
+          dhAudio.noiseGain.gain.setTargetAtTime(noise * 0.52, ctx.currentTime, 0.18);
         }
       }
       function dhStartAudio() { dhSaveAudioSettings(); dhStartNoise(); }
