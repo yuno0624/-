@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -264,6 +266,253 @@
     .dh-manual-form { display: grid; gap: 12px; }
     .dh-history-review { margin-top: 8px; padding: 10px 12px; border-radius: 14px; border: 1px dashed rgba(36,48,68,.14); background: rgba(255,255,255,.62); color: var(--muted); line-height: 1.55; }
     .sync-mail-note { margin-top: 10px; padding: 10px 12px; border-radius: 16px; background: rgba(255,255,255,.62); border: 1px dashed rgba(36,48,68,.14); color: var(--muted); line-height: 1.55; }
+
+    /* ===== 読書ログ拡張：通常ミッションの下に置く本別トラッカー ===== */
+    .reading-panel {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 24px;
+      border: 1px solid rgba(36,48,68,.10);
+      background: linear-gradient(135deg, rgba(255,255,255,.78), rgba(255,236,204,.42), rgba(85,199,243,.08));
+      box-shadow: 0 10px 26px rgba(30,30,30,.045);
+      display: grid;
+      gap: 12px;
+    }
+    .reading-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    .reading-head h3 { margin: 0; }
+    .reading-add-row,
+    .reading-book-actions,
+    .reading-check-add-row,
+    .reading-mini-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .reading-add-row input { min-width: min(100%, 260px); flex: 1; }
+    .reading-linked-missions {
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+      border-radius: 18px;
+      border: 1px dashed rgba(36,48,68,.14);
+      background: rgba(255,255,255,.62);
+    }
+    .reading-linked-missions-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .reading-linked-item {
+      padding: 9px 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(36,48,68,.09);
+      background: rgba(255,255,255,.72);
+      line-height: 1.55;
+      color: var(--muted);
+    }
+    .reading-book-list { display: grid; gap: 12px; }
+    .reading-book-card {
+      border-radius: 22px;
+      border: 1px solid rgba(36,48,68,.10);
+      background: rgba(255,255,255,.82);
+      box-shadow: 0 8px 20px rgba(30,30,30,.04);
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+      overflow: hidden;
+    }
+    .reading-book-top {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: start;
+    }
+    .reading-book-title { margin: 0; font-size: 1.05rem; line-height: 1.35; }
+    .reading-stat-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .reading-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(139,209,124,.16);
+      color: #327039;
+      font-size: .8rem;
+      font-weight: 900;
+    }
+    .reading-badge.today { background: rgba(255,159,67,.16); color: #94601b; }
+    .reading-badge.done { background: rgba(85,199,243,.15); color:#176d92; }
+    .reading-subgrid {
+      display: grid;
+      grid-template-columns: minmax(220px, .78fr) minmax(260px, 1.22fr);
+      gap: 12px;
+      align-items: start;
+    }
+    .reading-box {
+      border-radius: 18px;
+      border: 1px dashed rgba(36,48,68,.12);
+      background: rgba(255,255,255,.58);
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      min-width: 0;
+    }
+    .reading-check-list { display: grid; gap: 8px; }
+    .reading-check-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 9px;
+      border-radius: 14px;
+      border: 1px solid rgba(36,48,68,.09);
+      background: rgba(255,255,255,.70);
+    }
+    .reading-check-label {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      min-width: 0;
+      line-height: 1.45;
+      color: var(--ink);
+      cursor: pointer;
+    }
+    .reading-check-label span { overflow-wrap: anywhere; }
+    .reading-note-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .reading-note-grid textarea {
+      min-height: 108px;
+      line-height: 1.6;
+      background: rgba(255,255,255,.78);
+    }
+    .reading-empty {
+      padding: 14px;
+      border-radius: 18px;
+      border: 2px dashed rgba(36,48,68,.14);
+      background: rgba(255,255,255,.52);
+      color: var(--muted);
+      line-height: 1.65;
+      text-align: center;
+    }
+
+    .reading-read-flag {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(36,48,68,.10);
+      background: rgba(255,255,255,.72);
+      font-weight: 950;
+      line-height: 1.5;
+    }
+    .reading-read-flag input { width: auto; transform: scale(1.25); }
+    .reading-month-tracker {
+      display: grid;
+      gap: 10px;
+      margin-top: 4px;
+      padding: 12px;
+      border-radius: 20px;
+      border: 1px dashed rgba(36,48,68,.14);
+      background: rgba(255,255,255,.58);
+    }
+    .reading-month-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .reading-month-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 6px;
+    }
+    .reading-month-label {
+      text-align: center;
+      color: var(--muted);
+      font-weight: 950;
+      font-size: .78rem;
+      padding: 4px;
+    }
+    .reading-month-cell {
+      min-height: 104px;
+      border-radius: 16px;
+      border: 1px solid rgba(36,48,68,.10);
+      background: rgba(255,255,255,.70);
+      padding: 8px;
+      display: grid;
+      gap: 6px;
+      align-content: start;
+      overflow: hidden;
+    }
+    .reading-month-cell.out { opacity: .42; }
+    .reading-month-cell.has-reading { box-shadow: inset 0 0 0 2px rgba(139,209,124,.22); background: linear-gradient(135deg, rgba(139,209,124,.12), rgba(255,255,255,.76)); }
+    .reading-month-date {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      font-weight: 950;
+    }
+    .reading-month-total {
+      color: #327039;
+      font-weight: 950;
+      font-size: .82rem;
+    }
+    .reading-month-books {
+      display: grid;
+      gap: 4px;
+      font-size: .74rem;
+      line-height: 1.35;
+      color: var(--muted);
+    }
+    .reading-month-book {
+      padding: 4px 6px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.72);
+      border: 1px solid rgba(36,48,68,.08);
+      overflow-wrap: anywhere;
+    }
+    .dh-reading-link-box {
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+      border-radius: 18px;
+      border: 1px dashed rgba(36,48,68,.14);
+      background: linear-gradient(135deg, rgba(255,255,255,.70), rgba(255,236,204,.32));
+    }
+    .dh-end-sound-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 8px;
+      align-items: center;
+    }
+    @media (max-width:760px) {
+      .reading-book-top,
+      .reading-subgrid,
+      .reading-note-grid,
+      .reading-month-grid,
+      .dh-end-sound-row { grid-template-columns: 1fr; }
+      .reading-book-actions { justify-content: flex-start; }
+    }
+
     @media (max-width:920px) { .hero-row, .layout, .dh-grid, .ht-grid, .dh-compact-timer { grid-template-columns:1fr; } .side, .dh-visual-column { position:static; } .stats-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); } .task-card { grid-template-columns:1fr; } .task-actions { grid-column:1 / -1; justify-content:flex-start; min-width:0; } .dh-compact-timer { text-align:center; } .dh-mode-row, .dh-actions, .dh-presets, .dh-save-row, .dh-sound-row, .dh-input-inline, .dh-time-inputs { justify-content:center; } }
     @media (max-width:700px) { .weekly-ledger { grid-template-columns:1fr; justify-items:center; } }
     @media (max-width:560px) { .app { width:min(100% - 18px, 1180px); padding-top:10px; } .hero { padding:18px; border-radius:24px; } .stats-grid, .form-grid, .ht-summary-grid { grid-template-columns:1fr; } .progress-shell { grid-template-columns:1fr; justify-items:center; text-align:center; } .toolbar { align-items:stretch; } .toolbar-actions, .hero-actions { width:100%; } .btn { flex:1 1 auto; } .dh-bottle-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); } .ht-month-grid { gap:4px; } .ht-month-cell { min-height:78px; padding:6px; border-radius:13px; } }
@@ -333,6 +582,7 @@
           <button class="tab-btn active" data-tab="today">🗡 ミッション一覧</button>
           <button class="tab-btn" data-tab="add">＋ 追加・編集</button>
           <button class="tab-btn" data-tab="hourglass">⌛ 砂時計ログ</button>
+          <button class="tab-btn" data-tab="reading">📚 読書トラッカー</button>
           <button class="tab-btn" data-tab="habits">🌱 習慣トラッカー</button>
           <button class="tab-btn" data-tab="history">📈 履歴</button>
           <button class="tab-btn" data-tab="settings">⚙ 設定・使い方</button>
@@ -370,6 +620,37 @@
             <ul class="brain-dump-list" id="brainDumpList"></ul>
           </section>
           <div class="task-list" id="taskList"></div>
+
+        </section>
+
+        <section class="panel panel-pad view" id="view-reading">
+          <div class="ht-wrap">
+            <header class="ht-hero">
+              <span class="eyebrow">📚 Reading Tracker</span>
+              <h2>読書トラッカー</h2>
+              <p class="soft">読書タグの砂時計ログを、本ごとの読書時間・読んだ日・感想に分けて残す。ミッション一覧から切り離して、習慣トラッカーのように確認できる場所。</p>
+              <div class="toolbar-actions" style="margin-top:12px">
+                <button class="btn blue" type="button" data-tab-go="hourglass">⌛ 砂時計で読む</button>
+                <button class="btn" type="button" data-tab-go="today">🗡 ミッション一覧へ</button>
+              </div>
+            </header>
+          <section class="reading-panel" id="readingPanel" aria-label="読書タグ付きミッションと読書ログ">
+            <div class="reading-head">
+              <div>
+                <h3>📚 読書タグ付きミッション / 本別ログ</h3>
+                <p class="soft" style="margin:.35rem 0 0">「読書」タグの砂時計ログを、本ごとの時間・チェック・感想に連動させる場所。</p>
+              </div>
+              <button class="btn blue small" type="button" data-tab-go="hourglass">砂時計で読む</button>
+            </div>
+            <div class="reading-linked-missions" id="readingLinkedMissions"></div>
+            <div class="reading-add-row">
+              <input id="readingBookTitleInput" type="text" placeholder="本のタイトルを追加（例：さよならドビュッシー）" />
+              <button class="btn primary" id="readingAddBookBtn" type="button">本を追加</button>
+            </div>
+            <div id="readingBookList" class="reading-book-list"></div>
+            <div id="readingMonthTracker" class="reading-month-tracker"></div>
+          </section>
+          </div>
         </section>
 
         <section class="panel panel-pad view" id="view-add">
@@ -418,14 +699,28 @@
                   <div class="dh-audio-compact">
                     <label for="dhNoiseVolume">音量</label>
                     <div class="dh-audio-row"><input id="dhNoiseVolume" type="range" min="0" max="100" value="20" /><span class="tag" id="dhNoiseVolumeLabel">20%</span><button class="btn small" id="dhAudioStopBtn" type="button">音を止める</button></div>
+                    <div class="dh-end-sound-row">
+                      <label class="reading-check-label" for="dhEndSoundEnabled"><input id="dhEndSoundEnabled" type="checkbox" checked />終了音</label>
+                      <span class="tag" id="dhEndSoundVolumeLabel">60%</span>
+                      <button class="btn small" id="dhEndSoundTestBtn" type="button">終了音テスト・有効化</button>
+                    </div>
+                    <input id="dhEndSoundVolume" type="range" min="0" max="100" value="60" aria-label="終了音の音量" />
                   </div>
-                  <p class="dh-audio-note">Start時に再生します。Androidでは復帰時に実時刻からタイマーを補正します。</p>
+                  <p class="dh-audio-note">Start時に集中用サウンドを再生します。終了音が鳴らない時は「終了音テスト・有効化」を一度押してください。Androidでは復帰時に実時刻からタイマーを補正します。</p>
                 </div>
               </aside>
               <div class="dh-control-column">
                 <p id="dhStatus" class="soft">今から何をするか決めてから、砂を落とそう。</p>
                 <div class="form-grid"><div class="field full"><label for="dhTaskNote">今、何に時間を使う？</label><textarea id="dhTaskNote" placeholder="例：SQ3Rで1章だけ読む、求人を整理する、休憩をとる、胸トレをする"></textarea></div><div class="field full"><label for="dhWageType">この時間の見方</label><select id="dhWageType"><option value="salary">積み上げ：努力・必要作業として記録</option><option value="profit">利益：有意義・未来投資・回復として増やす</option><option value="loss">損失：減らしたい／時間がかかりすぎた行動として見る</option></select></div></div>
                 <div><p class="dh-card-title">目的タグ</p><div class="dh-tag-row" id="dhTagRow"></div><div id="dhTagInsight" class="dh-tag-insight">タグを選ぶと、前回の記録と改善仮説を表示する。</div><div class="dh-input-inline" style="margin-top:10px"><input id="dhCustomTagInput" type="text" maxlength="14" placeholder="例：読書・運動・日記" /><button class="btn small" id="dhAddTagBtn" type="button">タグ追加</button></div></div>
+                <div class="dh-reading-link-box" id="dhReadingLinkBox">
+                  <p class="dh-card-title">今回読む本</p>
+                  <p class="soft" style="margin:0">「なし」を選ぶと読書トラッカーには反映しません。本を選んだ場合だけ、終了後の振り返り保存時にその本へ読書時間を累積します。</p>
+                  <div class="reading-mini-row">
+                    <select id="dhReadingBookSelect" aria-label="今回読む本"></select>
+                    <button class="btn small" id="dhReadingSelectCurrentBtn" type="button">本の管理へ</button>
+                  </div>
+                </div>
                 <div class="dh-countdown-only"><div class="dh-time-inputs"><div class="field" style="max-width:90px"><label for="dhMinutes">分</label><input id="dhMinutes" class="dh-time-num" type="number" min="0" max="99" value="5" inputmode="numeric" /></div><span class="dh-colon">:</span><div class="field" style="max-width:90px"><label for="dhSeconds">秒</label><input id="dhSeconds" class="dh-time-num" type="number" min="0" max="59" value="0" inputmode="numeric" /></div></div><div class="dh-presets"><button class="btn small dh-preset active" type="button" data-dh-seconds="300">5分</button><button class="btn small dh-preset" type="button" data-dh-seconds="600">10分</button><button class="btn small dh-preset" type="button" data-dh-seconds="1500" data-dh-focus="true">集中</button><button class="btn small dh-preset" type="button" data-dh-seconds="2700">45分</button><button class="btn small dh-preset" type="button" data-dh-seconds="3600">60分</button></div></div>
                 <p class="soft">途中終了でも「終了して記録」を押せば、実測時間を小瓶へ移す。</p>
               </div>
@@ -466,8 +761,9 @@
         </section>
 
         <section class="panel panel-pad view" id="view-settings">
-          <div class="toolbar"><div><h2>設定・使い方</h2><p class="soft">使いにくい仕組みは、根性じゃなく設定で直す。</p></div></div><div class="field full"><button class="btn primary" id="saveSettingsBtn">設定を保存</button></div></div>
-          <details class="manual" open style="margin-top:14px"><summary>操作マニュアル</summary><div class="manual-content"><ul><li><strong>ミッション一覧</strong>：登録した予定を確認し、終わったら「クリア」。</li><li><strong>砂時計ログ</strong>：集中・休憩・勉強など、時間の使い道を小瓶で見える化。</li><li><strong>習慣トラッカー</strong>：週表と月カレンダーで継続を確認。筋トレは回復日も見る。</li><li><strong>履歴</strong>：ミッション・砂時計・習慣をまとめて時間収支表示。</li></ul></div></details>
+          <div class="toolbar"><div><h2>設定・使い方</h2><p class="soft">使いにくい仕組みは、根性じゃなく設定で直す。</p></div></div>
+          <div class="field full"><button class="btn primary" id="saveSettingsBtn">設定を保存</button></div>
+          <details class="manual" open style="margin-top:14px"><summary>操作マニュアル</summary><div class="manual-content"><ul><li><strong>ミッション一覧</strong>：登録した予定を確認し、終わったら「クリア」。</li><li><strong>砂時計ログ</strong>：集中・休憩・勉強など、時間の使い道を小瓶で見える化。</li><li><strong>読書トラッカー</strong>：本ごとの読書時間、読んだ日、読書メモを確認。</li><li><strong>習慣トラッカー</strong>：週表と月カレンダーで継続を確認。筋トレは回復日も見る。</li><li><strong>履歴</strong>：ミッション・砂時計・習慣をまとめて時間収支表示。</li></ul></div></details>
           <details class="manual" style="margin-top:12px" open><summary>GitHub同期設定（PC ⇄ Android）</summary><div class="manual-content"><p>PCとAndroidで同じGist ID・同じ同期ファイル名・同じトークンを設定すると同期できます。トークンはこの端末のlocalStorageに保存します。読み込み時は、指定したファイル名のJSONだけを読み込みます。</p><div class="sync-box"><div class="form-grid"><div class="field full"><label for="syncToken">GitHub Personal Access Token</label><input id="syncToken" type="password" autocomplete="off" placeholder="gist権限だけを付けたトークン" /></div><div class="field"><label for="syncGistId">Gist ID</label><input id="syncGistId" placeholder="初回は空欄でOK" /></div><div class="field"><label for="syncFileName">同期ファイル名</label><input id="syncFileName" value="yorozu-mission-sync.json" /></div><div class="field full"><label class="sync-check" for="syncAutoEnabled"><input id="syncAutoEnabled" type="checkbox" checked /><span><strong>30秒ごとに自動同期する</strong><br><small>自動同期はGitHubへ保存します。手動の「GitHubから読み込み」も残しています。</small></span></label></div></div><div class="toolbar-actions" style="margin-top:12px"><button class="btn primary" id="syncSaveSettingsBtn" type="button">同期設定を保存</button><button class="btn blue" id="syncNowBtn" type="button">今すぐ同期</button><button class="btn" id="syncPushBtn" type="button">GitHubへ保存</button><button class="btn" id="syncPullBtn" type="button">GitHubから読み込み</button></div><div class="sync-status" id="syncStatusBox"><span class="sync-pill warn">未設定</span><span>トークンを入れて同期設定を保存。</span></div><div class="wage-help">読み込み時に「# 同期用Gist」のような説明文ファイルをJSONとして読まないよう、指定した同期ファイル名と完全一致するJSONだけを読み込みます。</div><div class="sync-mail-note">朝6時にメールで本日のミッションを自動送信する機能は、ローカルHTML単体では安全に実装できないため未搭載です。GmailやSMTPをブラウザ内に直置きすると認証情報の漏えいリスクがあります。</div></div></div></details>
         </section>
       </main>
@@ -506,13 +802,14 @@
       const todayKey = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
       const dateLabel = key => { const d = new Date(`${key}T00:00:00`); if (Number.isNaN(d.getTime())) return key || ''; return d.toLocaleDateString('ja-JP', { month:'short', day:'numeric', weekday:'short' }); };
       const escapeHtml = str => String(str ?? '').replace(/[&<>'"]/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[ch]));
-      const defaultTags = ['休憩','集中','勉強','キャリア','整理','家事'];
+      const defaultTags = ['休憩','集中','読書','勉強','キャリア','整理','家事'];
       const defaultState = () => ({
         selectedDate: todayKey(),
         tasks: [],
         brainDump: [],
         history: {},
-        hourglass: { history: [], tags: [...defaultTags], selectedTags: [], birthDate: '', draft: '', activeTimer: null, noiseVolume: 20 },
+        hourglass: { history: [], tags: [...defaultTags], selectedTags: [], birthDate: '', draft: '', activeTimer: null, noiseVolume: 20, endSound: true, endSoundVolume: 60 },
+        reading: { books: [], selectedBookId: '', monthDate: todayKey() },
         habits: [],
         habitLogs: {},
         habitWeekDate: todayKey(),
@@ -570,7 +867,7 @@
       function editTask(task) { $('#formTitle').textContent = 'ミッション編集'; $('#taskId').value = task.id; $('#taskTitle').value = task.title || ''; $('#taskDate').value = task.date || state.selectedDate; $('#taskDeadline').value = task.deadline || ''; $('#taskStart').value = task.start || ''; $('#taskEnd').value = task.end || ''; $('#taskMode').value = task.mode || 'soft'; $('#taskWageType').value = normalizeWageType(task.wageType); $('#taskMiniStart').value = task.miniStart || ''; $('#taskNote').value = task.note || ''; setTab('add'); }
       function resetTaskForm() { $('#formTitle').textContent = 'ミッション追加'; $('#taskForm').reset(); $('#taskId').value = ''; $('#taskDate').value = state.selectedDate; $('#taskMode').value = 'soft'; $('#taskWageType').value = 'salary'; }
       function saveTaskFromForm() { const id = $('#taskId').value; const title = $('#taskTitle').value.trim(); if (!title) return toast('ミッション名が空だ。'); const payload = { title, date:$('#taskDate').value || state.selectedDate, deadline:$('#taskDeadline').value || '', start:$('#taskStart').value || '', end:$('#taskEnd').value || '', mode:$('#taskMode').value, energy:'normal', wageType:normalizeWageType($('#taskWageType').value), miniStart:$('#taskMiniStart').value.trim(), note:$('#taskNote').value.trim(), updatedAt:new Date().toISOString() }; if (payload.start && payload.end && payload.start > payload.end) return toast('開始時間が終了時間より後になってる。'); setUndoPoint(id ? 'ミッション更新' : 'ミッション追加'); if (id) Object.assign(state.tasks.find(t => t.id === id), payload); else state.tasks.push({ id:uid(), completedAt:'', completedTime:'', createdAt:new Date().toISOString(), ...payload }); state.selectedDate = payload.date; saveState(); resetTaskForm(); renderAll(); setTab('today'); }
-      function transferTaskToHourglass(task, shouldStart) { const text = [task.title, task.note].filter(Boolean).join('\n'); $('#dhTaskNote').value = text; state.hourglass.draft = text; $('#dhWageType').value = normalizeWageType(task.wageType); if (!state.hourglass.selectedTags.includes('集中')) state.hourglass.selectedTags.push('集中'); saveState(); renderDhTags(); setTab('hourglass'); if (shouldStart) startHourglassFocus(); }
+      function transferTaskToHourglass(task, shouldStart) { const text = [task.title, task.note].filter(Boolean).join('\n'); $('#dhTaskNote').value = text; state.hourglass.draft = text; $('#dhWageType').value = normalizeWageType(task.wageType); if (!state.hourglass.selectedTags.includes('集中')) state.hourglass.selectedTags.push('集中'); if (isReadingTask(task) && !state.hourglass.selectedTags.includes('読書')) state.hourglass.selectedTags.push('読書'); saveState(); renderDhTags(); setTab('hourglass'); if (shouldStart) startHourglassFocus(); }
       function renderBrainDump() { const list = $('#brainDumpList'); if (!list) return; if (!state.brainDump.length) { list.innerHTML = '<li class="empty">まだメモは空。</li>'; return; } list.innerHTML = state.brainDump.map(item => `<li class="brain-dump-item"><div><div class="brain-dump-text">${escapeHtml(item.text)}</div><p class="soft" style="margin:.35rem 0 0">${escapeHtml(new Date(item.createdAt).toLocaleString('ja-JP'))}</p></div><div class="brain-dump-actions"><button class="btn blue small" type="button" data-brain-promote="${item.id}">ミッション化</button><button class="btn danger small" type="button" data-brain-delete="${item.id}">削除</button></div></li>`).join(''); list.querySelectorAll('[data-brain-delete]').forEach(btn => btn.addEventListener('click', () => { setUndoPoint('一時メモ削除'); state.brainDump = state.brainDump.filter(x => x.id !== btn.dataset.brainDelete); saveState(); renderBrainDump(); })); list.querySelectorAll('[data-brain-promote]').forEach(btn => btn.addEventListener('click', () => promoteBrainDump(btn.dataset.brainPromote))); }
       function addBrainDump() { const input = $('#brainDumpText'); const text = input.value.trim(); if (!text) return toast('出すものが空だ。'); state.brainDump.unshift({ id:uid(), text, createdAt:new Date().toISOString() }); state.brainDump = state.brainDump.slice(0,80); input.value = ''; saveState(); renderBrainDump(); }
       function promoteBrainDump(id) { const item = state.brainDump.find(x => x.id === id); if (!item) return; setUndoPoint('一時メモのミッション化'); state.tasks.push({ id:uid(), title:item.text.split('\n')[0].slice(0,60), date:state.selectedDate, deadline:'', start:'', end:'', mode:'free', energy:'light', wageType:'salary', miniStart:'1分だけ見る', note:item.text, completedAt:'', completedTime:'', createdAt:new Date().toISOString(), updatedAt:new Date().toISOString() }); state.brainDump = state.brainDump.filter(x => x.id !== id); saveState(); renderAll(); }
@@ -589,17 +886,17 @@
       function dhUpdateStatus() { const note = $('#dhTaskNote')?.value.trim() || ''; $('#dhStatus').textContent = dhTimer.running ? `今は「${note || '未設定'}」を測っている。` : note ? `次は「${note}」に使う予定だ。` : '今から何をするか決めてから、砂を落とそう。'; }
       function dhToggleTimer() { if (dhTimer.done) dhApplyDuration(dhParseSeconds()); dhTimer.running = !dhTimer.running; if (dhTimer.running) { dhTimer.startedAt = Date.now(); if (dhTimer.mode === 'down') dhTimer.baseRemain = dhTimer.remain; else dhTimer.baseElapsed = dhTimer.elapsed; if (!dhTimer.currentStart) dhTimer.currentStart = dhTimer.startedAt; $('#dhStartBtn').textContent = 'Pause'; clearInterval(dhTimer.intervalId); dhTimer.intervalId = setInterval(dhTickTimer,250); dhStartAudio(); persistDhActiveTimer(); } else { if (dhTimer.mode === 'down') dhTimer.remain = dhGetRemain(); else dhTimer.elapsed = dhGetElapsed(); clearInterval(dhTimer.intervalId); dhStopAudio(); $('#dhStartBtn').textContent = 'Start'; clearDhActiveTimer(); saveState(); } dhUpdateDisplay(); dhUpdateStatus(); dhUpdateHourglass(); }
       function dhTickTimer() { if (!dhTimer.running) return; if (dhTimer.mode === 'down') { dhTimer.remain = dhGetRemain(); if (dhTimer.remain <= 0) return dhFinishTimer('auto'); } else dhTimer.elapsed = dhGetElapsed(); dhUpdateDisplay(); dhUpdateHourglass(); }
-      function dhFinishTimer(reason = 'manual') { const activeSec = dhGetActiveSeconds(); if (activeSec <= 0) return toast('まだ記録できる砂がない。'); if (dhTimer.mode === 'down') dhTimer.remain = reason === 'auto' ? 0 : dhGetRemain(); else dhTimer.elapsed = dhGetElapsed(); dhTimer.running = false; dhTimer.done = true; clearInterval(dhTimer.intervalId); dhTimer.intervalId = null; dhStopAudio(); $('#dhStartBtn').textContent = 'Start'; $('#dhDisplay').classList.add('done'); const entry = { id:uid(), mode:dhTimer.mode, reason, startedAt:dhTimer.currentStart || Date.now(), endedAt:Date.now(), durationSec:activeSec, note:$('#dhTaskNote').value.trim(), tags:[...state.hourglass.selectedTags], wageType:normalizeWageType($('#dhWageType').value), reviewRate:'', reviewText:'', reviewHypothesis:'' }; state.hourglass.history.unshift(entry); state.hourglass.history = state.hourglass.history.slice(0,200); dhTimer.saved = true; clearDhActiveTimer(); saveState(); renderDhHistory(); renderHistory(); toast(`砂の結果：${dhWageLabel(activeSec, entry.wageType)} / ${dhFmtDuration(activeSec)}`); openDhReview(entry.id); }
+      function dhFinishTimer(reason = 'manual') { const activeSec = dhGetActiveSeconds(); if (activeSec <= 0) return toast('まだ記録できる砂がない。'); if (dhTimer.mode === 'down') dhTimer.remain = reason === 'auto' ? 0 : dhGetRemain(); else dhTimer.elapsed = dhGetElapsed(); dhTimer.running = false; dhTimer.done = true; clearInterval(dhTimer.intervalId); dhTimer.intervalId = null; dhStopAudio(); playSound(); $('#dhStartBtn').textContent = 'Start'; $('#dhDisplay').classList.add('done'); const isReading = state.hourglass.selectedTags.includes('読書') || /読書|本を読む|章を読む|音読|SQ3R|OK4R|Read|reading/i.test($('#dhTaskNote').value || ''); const linkedBook = isReading ? readingHourglassBook() : null; const entry = { id:uid(), mode:dhTimer.mode, reason, startedAt:dhTimer.currentStart || Date.now(), endedAt:Date.now(), durationSec:activeSec, note:$('#dhTaskNote').value.trim(), tags:[...state.hourglass.selectedTags], wageType:normalizeWageType($('#dhWageType').value), readingBookId: linkedBook?.id || '', readingBookTitle: linkedBook?.title || '', reviewRate:'', reviewText:'', reviewHypothesis:'' }; state.hourglass.history.unshift(entry); state.hourglass.history = state.hourglass.history.slice(0,200); dhTimer.saved = true; clearDhActiveTimer(); saveState(); renderDhHistory(); renderHistory(); renderReadingLog(); toast(`砂の結果：${dhWageLabel(activeSec, entry.wageType)} / ${dhFmtDuration(activeSec)}`); openDhReview(entry.id); }
       function dhResetTimer() { dhStopAudio(); clearInterval(dhTimer.intervalId); clearDhActiveTimer(); if (dhTimer.mode === 'up') { dhTimer.elapsed = 0; dhTimer.baseElapsed = 0; dhTimer.running = false; dhTimer.done = false; dhTimer.currentStart = null; dhTimer.saved = false; $('#dhDisplay').classList.remove('done'); $('#dhStartBtn').textContent = 'Start'; dhUpdateDisplay(); dhUpdateHourglass(); return; } dhApplyDuration(dhParseSeconds()); }
       function startHourglassFocus() { dhSetMode('down'); dhApplyDuration(1500); if (!state.hourglass.selectedTags.includes('集中')) state.hourglass.selectedTags.push('集中'); renderDhTags(); dhToggleTimer(); setTab('hourglass'); }
 
       function parseDhTagInput(value) { return String(value || '').split(/[、,，\s]+/).map(htNormalizeTag).filter(Boolean).slice(0, 8); }
       function dhEntryById(id) { return state.hourglass.history.find(item => item.id === id); }
-      function openDhReview(entryId) { const entry = dhEntryById(entryId); const box = $('#dhReviewNotice'); if (!entry || !box) return; $('#dhReviewEntryId').value = entry.id; $('#dhReviewSummary').textContent = `${dhFmtDuration(entry.durationSec)} / ${dhWageLabel(entry.durationSec, entry.wageType)} を記録した。次に活かす一言を残せる。`; $('#dhReviewRate').value = entry.reviewRate || ''; $('#dhReviewText').value = entry.reviewText || ''; $('#dhReviewHypothesis').value = entry.reviewHypothesis || ''; box.classList.add('open'); if ('Notification' in window && Notification.permission === 'granted') { try { new Notification('砂時計ログの振り返り', { body: 'タイマー終了。今回の振り返りを入力できます。' }); } catch {} } }
+      function openDhReview(entryId) { const entry = dhEntryById(entryId); const box = $('#dhReviewNotice'); if (!entry || !box) return; const book = entry.readingBookId ? readingBookById(entry.readingBookId) : null; $('#dhReviewEntryId').value = entry.id; const readingCandidate = (entry.tags || []).includes('読書') || /読書|本を読む|章を読む|音読|SQ3R|OK4R|Read|reading/i.test(entry.note || ''); $('#dhReviewSummary').textContent = book ? `${dhFmtDuration(entry.durationSec)} / ${dhWageLabel(entry.durationSec, entry.wageType)} を記録。振り返りを保存すると、読書ログ『${book.title}』へ累積する。` : readingCandidate ? `${dhFmtDuration(entry.durationSec)} / ${dhWageLabel(entry.durationSec, entry.wageType)} を記録した。今回読む本が「なし」のため、読書トラッカーには反映しない。` : `${dhFmtDuration(entry.durationSec)} / ${dhWageLabel(entry.durationSec, entry.wageType)} を記録した。次に活かす一言を残せる。`; $('#dhReviewRate').value = entry.reviewRate || ''; $('#dhReviewText').value = entry.reviewText || ''; $('#dhReviewHypothesis').value = entry.reviewHypothesis || ''; box.classList.add('open'); if ('Notification' in window && Notification.permission === 'granted') { try { new Notification('砂時計ログの振り返り', { body: book ? `タイマー終了。『${book.title}』の読書ログに反映できます。` : 'タイマー終了。今回の振り返りを入力できます。' }); } catch {} } }
       function closeDhReview() { $('#dhReviewNotice')?.classList.remove('open'); }
-      function saveDhReview() { const entry = dhEntryById($('#dhReviewEntryId')?.value); if (!entry) return closeDhReview(); entry.reviewRate = $('#dhReviewRate')?.value || ''; entry.reviewText = $('#dhReviewText')?.value.trim() || ''; entry.reviewHypothesis = $('#dhReviewHypothesis')?.value.trim() || ''; saveState(); renderDhHistory(); renderDhTagInsight(); closeDhReview(); toast('振り返りを保存した。次の一手が少し楽になる。'); }
+      function saveDhReview() { const entry = dhEntryById($('#dhReviewEntryId')?.value); if (!entry) return closeDhReview(); entry.reviewRate = $('#dhReviewRate')?.value || ''; entry.reviewText = $('#dhReviewText')?.value.trim() || ''; entry.reviewHypothesis = $('#dhReviewHypothesis')?.value.trim() || ''; readingRecordFromHourglassEntry(entry); saveState(); renderDhHistory(); renderDhTagInsight(); renderReadingLog(); closeDhReview(); toast(entry.readingBookId ? '振り返りを保存した。読書ログにも反映済みだ。' : '振り返りを保存した。次の一手が少し楽になる。'); }
       function resetDhManualForm() { if (!$('#dhManualHistoryForm')) return; $('#dhManualEntryId').value = ''; $('#dhManualDate').value = state.selectedDate || todayKey(); $('#dhManualStart').value = '09:00'; $('#dhManualDuration').value = 10; $('#dhManualWageType').value = 'salary'; $('#dhManualTags').value = state.hourglass.selectedTags.join('、'); $('#dhManualNote').value = ''; $('#dhManualSaveBtn').textContent = '履歴を保存'; }
-      function saveDhManualHistory(event) { event?.preventDefault(); const date = $('#dhManualDate')?.value || todayKey(); const start = $('#dhManualStart')?.value || '09:00'; const minutes = clamp(parseInt($('#dhManualDuration')?.value, 10) || 1, 1, 1440); const note = $('#dhManualNote')?.value.trim() || ''; const tags = parseDhTagInput($('#dhManualTags')?.value || '手動'); tags.forEach(tag => { if (!state.hourglass.tags.includes(tag)) state.hourglass.tags.push(tag); }); const startedAt = new Date(`${date}T${start}:00`).getTime(); const endedAt = startedAt + minutes * 60000; const id = $('#dhManualEntryId')?.value || ''; const payload = { mode:'manual', reason:'manual-add', startedAt, endedAt, durationSec:minutes * 60, note, tags, wageType:normalizeWageType($('#dhManualWageType')?.value || 'salary'), reviewRate:'', reviewText:'', reviewHypothesis:'' }; setUndoPoint(id ? '砂時計履歴編集' : '砂時計履歴追加'); if (id) { const item = dhEntryById(id); if (item) Object.assign(item, payload); } else { state.hourglass.history.unshift({ id:uid(), ...payload }); } state.hourglass.history = state.hourglass.history.slice(0, 200); saveState(); resetDhManualForm(); renderDhTags(); renderDhHistory(); renderHistory(); toast(id ? '砂時計履歴を更新した。' : '砂時計履歴を手動追加した。'); }
+      function saveDhManualHistory(event) { event?.preventDefault(); const date = $('#dhManualDate')?.value || todayKey(); const start = $('#dhManualStart')?.value || '09:00'; const minutes = clamp(parseInt($('#dhManualDuration')?.value, 10) || 1, 1, 1440); const note = $('#dhManualNote')?.value.trim() || ''; const tags = parseDhTagInput($('#dhManualTags')?.value || '手動'); tags.forEach(tag => { if (!state.hourglass.tags.includes(tag)) state.hourglass.tags.push(tag); }); const startedAt = new Date(`${date}T${start}:00`).getTime(); const endedAt = startedAt + minutes * 60000; const id = $('#dhManualEntryId')?.value || ''; const isReading = tags.includes('読書') || /読書|本を読む|章を読む|音読|SQ3R|OK4R|Read|reading/i.test(note); const linkedBook = isReading ? readingHourglassBook() : null; const payload = { mode:'manual', reason:'manual-add', startedAt, endedAt, durationSec:minutes * 60, note, tags, wageType:normalizeWageType($('#dhManualWageType')?.value || 'salary'), readingBookId: linkedBook?.id || '', readingBookTitle: linkedBook?.title || '', reviewRate:'', reviewText:'', reviewHypothesis:'' }; setUndoPoint(id ? '砂時計履歴編集' : '砂時計履歴追加'); if (id) { const item = dhEntryById(id); if (item) { Object.assign(item, payload); readingRecordFromHourglassEntry(item); } } else { const entry = { id:uid(), ...payload }; state.hourglass.history.unshift(entry); readingRecordFromHourglassEntry(entry); } state.hourglass.history = state.hourglass.history.slice(0, 200); saveState(); resetDhManualForm(); renderDhTags(); renderDhHistory(); renderHistory(); renderReadingLog(); toast(id ? '砂時計履歴を更新した。' : '砂時計履歴を手動追加した。'); }
       function editDhHistoryEntry(id) { const item = dhEntryById(id); if (!item) return; const start = new Date(item.startedAt || Date.now()); $('#dhManualEntryId').value = item.id; $('#dhManualDate').value = dhTodayKey(start); $('#dhManualStart').value = `${pad(start.getHours())}:${pad(start.getMinutes())}`; $('#dhManualDuration').value = Math.max(1, Math.round((Number(item.durationSec) || 60) / 60)); $('#dhManualWageType').value = normalizeWageType(item.wageType); $('#dhManualTags').value = (item.tags || []).join('、'); $('#dhManualNote').value = item.note || ''; $('#dhManualSaveBtn').textContent = '履歴を更新'; setTab('hourglass'); $('#dhManualHistoryForm')?.scrollIntoView({ behavior:'smooth', block:'center' }); }
       function persistDhActiveTimer() { state.hourglass.activeTimer = dhTimer.running ? { mode:dhTimer.mode, duration:dhTimer.duration, remain:dhTimer.remain, elapsed:dhTimer.elapsed, baseRemain:dhTimer.baseRemain, baseElapsed:dhTimer.baseElapsed, startedAt:dhTimer.startedAt, currentStart:dhTimer.currentStart, saved:dhTimer.saved } : null; saveState(); }
       function clearDhActiveTimer() { if (state.hourglass) state.hourglass.activeTimer = null; }
@@ -615,11 +912,37 @@
         }
         return dhAudio.ctx;
       }
+      async function dhEnsureAudioContextReady() {
+        const ctx = dhAudioContext();
+        if (!ctx) return null;
+        if (ctx.state === 'suspended') await ctx.resume();
+        return ctx;
+      }
+      async function dhPrimeAudio() {
+        const ctx = await dhEnsureAudioContextReady();
+        if (!ctx) return null;
+        try {
+          const now = ctx.currentTime + 0.01;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(440, now);
+          gain.gain.setValueAtTime(0.00001, now);
+          gain.gain.setValueAtTime(0.00001, now + 0.035);
+          osc.connect(gain).connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.04);
+        } catch {}
+        return ctx;
+      }
       function dhRenderAudioLabels() {
         if ($('#dhNoiseVolumeLabel')) $('#dhNoiseVolumeLabel').textContent = `${Math.round(Number($('#dhNoiseVolume')?.value || state.hourglass.noiseVolume || 0))}%`;
+        if ($('#dhEndSoundVolumeLabel')) $('#dhEndSoundVolumeLabel').textContent = `${Math.round(Number($('#dhEndSoundVolume')?.value || state.hourglass.endSoundVolume || 0))}%`;
       }
       function dhSaveAudioSettings() {
         state.hourglass.noiseVolume = clamp(parseInt($('#dhNoiseVolume')?.value, 10) || 0, 0, 100);
+        state.hourglass.endSound = $('#dhEndSoundEnabled') ? !!$('#dhEndSoundEnabled').checked : state.hourglass.endSound !== false;
+        state.hourglass.endSoundVolume = clamp(parseInt($('#dhEndSoundVolume')?.value, 10) || 0, 0, 100);
         dhRenderAudioLabels();
         dhUpdateAudioVolumes();
         saveState();
@@ -641,10 +964,9 @@
         for (let i = 0; i < length; i += 1) data[i] *= normalize;
         return buffer;
       }
-      function dhStartNoise() {
-        const ctx = dhAudioContext();
+      async function dhStartNoise() {
+        const ctx = await dhPrimeAudio();
         if (!ctx) return;
-        if (ctx.state === 'suspended') ctx.resume();
         if (!dhAudio.noiseSource) {
           const source = ctx.createBufferSource();
           source.buffer = dhCreateBrownNoiseBuffer(ctx, 12);
@@ -687,7 +1009,7 @@
           dhAudio.noiseGain.gain.setTargetAtTime(noise * 0.52, ctx.currentTime, 0.18);
         }
       }
-      function dhStartAudio() { dhSaveAudioSettings(); dhStartNoise(); }
+      function dhStartAudio() { dhSaveAudioSettings(); dhStartNoise().catch(() => toast('音声の有効化に失敗した。終了音テストを一度押してくれ。')); }
       function dhStopAudio() { dhStopNoise(); }
       function dhWageLabel(seconds, type='salary') { return `${wageTypeLabel(type)} ${signedWageText(dhWageYen(seconds), type)}`; }
       function renderDhTags() { const row = $('#dhTagRow'); if (!row) return; row.innerHTML = state.hourglass.tags.map(tag => `<span><button class="dh-chip ${state.hourglass.selectedTags.includes(tag) ? 'active' : ''}" type="button" data-dh-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button><button class="dh-remove" type="button" data-dh-remove="${escapeHtml(tag)}">×</button></span>`).join(''); renderDhTagInsight(); }
@@ -729,13 +1051,404 @@
       function renderHistory() { renderWeeklyLedger(); const list = $('#historyList'); const entries = []; Object.keys(state.history).sort().reverse().forEach(date => (state.history[date].entries || []).slice().reverse().forEach(e => entries.push({ date, ...e }))); if (!entries.length) { list.innerHTML = '<div class="empty">履歴はまだない。</div>'; return; } list.innerHTML = entries.map(e => `<article class="history-card"><h3 class="history-title">${escapeHtml(e.title)}</h3><div class="task-meta"><span class="tag">${dateLabel(e.date)}</span><span class="tag">${escapeHtml(e.completedTime || '')}</span><span class="wage-note ${wageTypeClass(e.wageType)}">${wageTypeLabel(e.wageType)} ${signedWageText(e.wageYen || 0, e.wageType)}</span></div></article>`).join(''); }
       function getLastSevenDateKeys() { const keys = []; const d = new Date(`${todayKey()}T00:00:00`); for (let i=6;i>=0;i--) { const x = new Date(d); x.setDate(d.getDate()-i); keys.push(htKeyFromDate(x)); } return keys; }
       function renderWeeklyLedger() { const keys = getLastSevenDateKeys(); const keySet = new Set(keys); const summary = { salaryYen:0, profitYen:0, lossYen:0, netYen:0, tagSeconds:new Map() }; keys.forEach(key => { (state.history[key]?.entries || []).forEach(e => { const yen = Number(e.wageYen)||0; const type = normalizeWageType(e.wageType); if (type === 'loss') { summary.lossYen += yen; summary.netYen -= yen; } else if (type === 'profit') { summary.profitYen += yen; summary.netYen += yen; } else { summary.salaryYen += yen; summary.netYen += yen; } summary.tagSeconds.set(e.title || 'ミッション', (summary.tagSeconds.get(e.title || 'ミッション') || 0) + (Number(e.plannedMinutes)||0)*60); }); htDoneHabitIds(key).forEach(id => { const h = htHabitById(id); if (!h) return; const yen = missionWageYen(htHabitMinutes(h)); const type = normalizeWageType(h.wageType); if (type === 'loss') { summary.lossYen += yen; summary.netYen -= yen; } else if (type === 'profit') { summary.profitYen += yen; summary.netYen += yen; } else { summary.salaryYen += yen; summary.netYen += yen; } const tag = h.tag || h.name; summary.tagSeconds.set(tag, (summary.tagSeconds.get(tag)||0)+htHabitMinutes(h)*60); }); }); state.hourglass.history.forEach(item => { const key = dhTodayKey(item.endedAt); if (!keySet.has(key)) return; const yen = dhWageYen(item.durationSec); const type = normalizeWageType(item.wageType); if (type === 'loss') { summary.lossYen += yen; summary.netYen -= yen; } else if (type === 'profit') { summary.profitYen += yen; summary.netYen += yen; } else { summary.salaryYen += yen; summary.netYen += yen; } const tags = item.tags?.length ? item.tags : ['未分類']; tags.forEach(tag => summary.tagSeconds.set(tag, (summary.tagSeconds.get(tag)||0) + item.durationSec/tags.length)); }); const totalAbs = summary.salaryYen + summary.profitYen + summary.lossYen; const salaryDeg = totalAbs ? summary.salaryYen/totalAbs*360 : 0; const profitDeg = totalAbs ? summary.profitYen/totalAbs*360 : 0; const lossDeg = totalAbs ? summary.lossYen/totalAbs*360 : 0; $('#weeklyLedger').innerHTML = `<div class="ledger-pie" style="--salary:${salaryDeg}deg;--profit:${profitDeg}deg;--loss:${lossDeg}deg"><div class="ledger-pie-center"><span>純収支<br>${summary.netYen < 0 ? '-' : ''}${dhFmtYen(Math.abs(summary.netYen))}</span></div></div><div class="ledger-breakdown"><div class="ledger-row"><strong>積み上げ</strong><span>${dhFmtYen(summary.salaryYen)}</span></div><div class="ledger-row"><strong>利益</strong><span>${dhFmtYen(summary.profitYen)}</span></div><div class="ledger-row"><strong>損失</strong><span>-${dhFmtYen(summary.lossYen)}</span></div><div class="ledger-row"><strong>対象期間</strong><span>${dateLabel(keys[0])}〜${dateLabel(keys[6])}</span></div></div>`; const top = [...summary.tagSeconds.entries()].sort((a,b) => b[1]-a[1]).slice(0,3); $('#weeklyTopTags').innerHTML = top.length ? top.map(([tag,sec],i) => `<article class="dh-top3-item"><span class="dh-rank">${i+1}</span><strong>${escapeHtml(tag)}</strong><span>${dhFmtDuration(sec)}</span></article>`).join('') : '<div class="empty">直近7日の行動ログはまだ空。</div>'; }
-      function renderAll() { $('#selectedDate').value = state.selectedDate; $('#taskDate').value = state.selectedDate; renderStats(); renderTasks(); renderBrainDump(); renderDhTags(); renderDhHistory(); renderHabits(); renderHistory(); renderSettings(); renderUndoButton(); }
-      function setTab(tab) { $$('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab)); $$('.view').forEach(view => view.classList.toggle('active', view.id === `view-${tab}`)); if (tab === 'history') renderHistory(); if (tab === 'habits') renderHabits(); }
+
+      function readingDefaultCheckItems() {
+        return [
+          { id: uid(), label: '今日は読んだか' }
+        ];
+      }
+      function normalizeReadingBook(book = {}) {
+        return {
+          id: book.id || uid(),
+          title: String(book.title || '無題の本'),
+          createdAt: book.createdAt || new Date().toISOString(),
+          completedAt: book.completedAt || '',
+          checkItems: Array.isArray(book.checkItems) && book.checkItems.length ? book.checkItems : readingDefaultCheckItems(),
+          checks: book.checks && typeof book.checks === 'object' ? book.checks : {},
+          readDays: book.readDays && typeof book.readDays === 'object' ? book.readDays : {},
+          notes: {
+            before: book.notes?.before || '',
+            during: book.notes?.during || '',
+            after: book.notes?.after || ''
+          },
+          sessions: Array.isArray(book.sessions) ? book.sessions : []
+        };
+      }
+      function normalizeReadingState() {
+        state.reading ||= { books: [], selectedBookId: '', monthDate: todayKey() };
+        state.reading.books = (state.reading.books || []).map(normalizeReadingBook);
+        state.reading.monthDate ||= state.selectedDate || todayKey();
+        if (state.reading.selectedBookId && !readingBookById(state.reading.selectedBookId)) state.reading.selectedBookId = '';
+      }
+      function readingBookById(id) { return (state.reading?.books || []).find(book => book.id === id); }
+      function readingSelectedBook() { return readingBookById(state.reading?.selectedBookId); }
+      function readingHourglassBook() {
+        const select = $('#dhReadingBookSelect');
+        const id = select ? select.value : (state.reading?.selectedBookId || '');
+        return id ? readingBookById(id) : null;
+      }
+      function readingDateKey(input) {
+        const d = input ? new Date(input) : new Date();
+        if (Number.isNaN(d.getTime())) return todayKey();
+        return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+      }
+      function readingFmtSeconds(seconds) {
+        const sec = Math.max(0, Math.round(Number(seconds) || 0));
+        const h = Math.floor(sec / 3600);
+        const m = Math.floor((sec % 3600) / 60);
+        if (!sec) return '0分';
+        if (h && m) return `${h}時間${m}分`;
+        if (h) return `${h}時間`;
+        return `${Math.max(1, m)}分`;
+      }
+      function readingBookSeconds(book, dateKey = todayKey()) {
+        return (book.sessions || []).filter(s => s.date === dateKey).reduce((sum, s) => sum + (Number(s.durationSec) || 0), 0);
+      }
+      function readingBookTotalSeconds(book) {
+        return (book.sessions || []).reduce((sum, s) => sum + (Number(s.durationSec) || 0), 0);
+      }
+      function readingBookReadOnDate(book, dateKey = todayKey()) {
+        return !!book.readDays?.[dateKey] || readingBookSeconds(book, dateKey) > 0;
+      }
+      function isReadingTask(task) {
+        const text = `${task.title || ''} ${task.note || ''} ${task.miniStart || ''}`;
+        return /読書|本を読む|章を読む|音読|SQ3R|OK4R|Read|reading/i.test(text);
+      }
+      function renderReadingLinkedMissions() {
+        const box = $('#readingLinkedMissions');
+        if (!box) return;
+        const items = selectedTasks().filter(isReadingTask);
+        if (!items.length) {
+          box.innerHTML = '<strong>読書タグ付きミッション</strong><p class="soft" style="margin:.35rem 0 0">今日の通常ミッション内に「読書」系の候補はまだない。読書ミッションを作るなら、ミッション名かメモに「読書」と入れるとここに出る。</p>';
+          return;
+        }
+        box.innerHTML = `<strong>読書タグ付きミッション</strong><div class="reading-linked-missions-list">${items.map(task => `<div class="reading-linked-item"><strong>${escapeHtml(task.title)}</strong><br>${escapeHtml(task.miniStart || task.note || '読書タグを付けて砂時計に転記できる。')}<div class="reading-mini-row" style="margin-top:8px"><button class="btn blue small" type="button" data-reading-transfer-task="${escapeHtml(task.id)}">砂時計ログへ転記</button></div></div>`).join('')}</div>`;
+      }
+      function renderReadingBookSelects() {
+        const select = $('#dhReadingBookSelect');
+        if (!select) return;
+        normalizeReadingState();
+        select.disabled = false;
+        const noneLabel = state.reading.books.length ? 'なし（読書トラッカーに反映しない）' : 'なし（先に本を追加すると選べます）';
+        const noneOption = `<option value="" ${state.reading.selectedBookId ? '' : 'selected'}>${noneLabel}</option>`;
+        const bookOptions = state.reading.books.map(book => `<option value="${escapeHtml(book.id)}" ${book.id === state.reading.selectedBookId ? 'selected' : ''}>${escapeHtml(book.title)}</option>`).join('');
+        select.innerHTML = noneOption + bookOptions;
+      }
+      function readingMonthStats(dateKey) {
+        const rows = [];
+        let total = 0;
+        (state.reading.books || []).forEach(book => {
+          const sec = readingBookSeconds(book, dateKey);
+          const read = readingBookReadOnDate(book, dateKey);
+          if (!read && !sec) return;
+          total += sec;
+          rows.push({ book, sec, readOnly: read && !sec });
+        });
+        return { rows, total };
+      }
+      function renderReadingMonthTracker() {
+        const box = $('#readingMonthTracker');
+        if (!box) return;
+        normalizeReadingState();
+        const base = htDateFromKey(state.reading.monthDate || state.selectedDate || todayKey());
+        const first = new Date(base.getFullYear(), base.getMonth(), 1);
+        const start = new Date(first);
+        start.setDate(first.getDate() - first.getDay());
+        const labels = ['日','月','火','水','木','金','土'].map(d => `<div class="reading-month-label">${d}</div>`).join('');
+        const cells = Array.from({ length: 42 }, (_, i) => {
+          const d = new Date(start);
+          d.setDate(start.getDate() + i);
+          const key = htKeyFromDate(d);
+          const stat = readingMonthStats(key);
+          const rows = stat.rows.slice(0, 3).map(row => `<div class="reading-month-book">${escapeHtml(row.book.title)}：${row.sec ? readingFmtSeconds(row.sec) : '読んだ'}</div>`).join('');
+          const extra = stat.rows.length > 3 ? `<div class="reading-month-book">ほか${stat.rows.length - 3}冊</div>` : '';
+          return `<article class="reading-month-cell ${d.getMonth() !== base.getMonth() ? 'out' : ''} ${stat.rows.length ? 'has-reading' : ''}"><div class="reading-month-date"><span>${d.getDate()}</span>${key === todayKey() ? '<span class="tag warn">今日</span>' : ''}</div>${stat.total ? `<div class="reading-month-total">合計 ${readingFmtSeconds(stat.total)}</div>` : stat.rows.length ? '<div class="reading-month-total">読了記録あり</div>' : '<div class="reading-month-books">未記録</div>'}<div class="reading-month-books">${rows}${extra}</div></article>`;
+        }).join('');
+        box.innerHTML = `<div class="reading-month-toolbar"><div><strong>読書トラッカー（月間）</strong><p class="soft" style="margin:.35rem 0 0">${base.toLocaleDateString('ja-JP',{year:'numeric',month:'long'})}：この日に何の本を、どのくらい読んだかを表示する。</p></div><div class="toolbar-actions"><button class="btn small" type="button" data-reading-month="prev">← 前月</button><button class="btn blue small" type="button" data-reading-month="today">今月</button><button class="btn small" type="button" data-reading-month="next">翌月 →</button></div></div><div class="reading-month-grid">${labels}${cells}</div>`;
+      }
+      function renderReadingLog() {
+        normalizeReadingState();
+        renderReadingLinkedMissions();
+        renderReadingBookSelects();
+        renderReadingMonthTracker();
+        const list = $('#readingBookList');
+        if (!list) return;
+        if (!state.reading.books.length) {
+          list.innerHTML = '<div class="reading-empty">まだ本が登録されていない。本を1冊追加すると、読書時間・読んだ日・感想をまとめて残せる。</div>';
+          return;
+        }
+        const today = todayKey();
+        list.innerHTML = state.reading.books.map(book => {
+          const todaySec = readingBookSeconds(book, today);
+          const totalSec = readingBookTotalSeconds(book);
+          const readToday = readingBookReadOnDate(book, today);
+          return `<article class="reading-book-card" data-reading-book="${escapeHtml(book.id)}">
+            <div class="reading-book-top">
+              <div>
+                <h4 class="reading-book-title">${escapeHtml(book.title)}</h4>
+                <div class="reading-stat-row">
+                  <span class="reading-badge today">本日は${readingFmtSeconds(todaySec)}読書した</span>
+                  <span class="reading-badge">累計 ${readingFmtSeconds(totalSec)}</span>
+                  ${book.completedAt ? `<span class="reading-badge done">読了 ${escapeHtml(book.completedAt.slice(0,10))}</span>` : ''}
+                </div>
+              </div>
+              <div class="reading-book-actions">
+                <button class="btn blue small" type="button" data-reading-current>砂時計へ転記</button>
+                <button class="btn small" type="button" data-reading-edit-title>修正</button>
+                <button class="btn danger small" type="button" data-reading-delete-book>削除</button>
+              </div>
+            </div>
+            <div class="reading-subgrid">
+              <div class="reading-box">
+                <strong>今日の読書チェック</strong>
+                <label class="reading-read-flag"><span>今日は読んだか</span><input type="checkbox" data-reading-read-today ${readToday ? 'checked' : ''}></label>
+                <p class="soft" style="margin:0">砂時計で読書時間を記録した日は、自動でチェック扱いになる。</p>
+              </div>
+              <div class="reading-box">
+                <strong>読書メモ</strong>
+                <div class="reading-note-grid">
+                  <label>読み始める前<textarea data-reading-note="before" placeholder="なぜ読むか、何を得たいか">${escapeHtml(book.notes.before)}</textarea></label>
+                  <label>読み途中<textarea data-reading-note="during" placeholder="気になった一文、疑問、感情の動き">${escapeHtml(book.notes.during)}</textarea></label>
+                  <label>読み終えたとき<textarea data-reading-note="after" placeholder="得たこと、次に使うこと">${escapeHtml(book.notes.after)}</textarea></label>
+                </div>
+                <div class="reading-mini-row"><button class="btn primary small" type="button" data-reading-complete>${book.completedAt ? '読了を祝う' : '読了した'}</button></div>
+              </div>
+            </div>
+          </article>`;
+        }).join('');
+      }
+      function transferReadingBookToHourglass(bookId) {
+        const book = readingBookById(bookId);
+        if (!book) return;
+        state.reading.selectedBookId = book.id;
+        if (!state.hourglass.tags.includes('読書')) state.hourglass.tags.push('読書');
+        if (!state.hourglass.selectedTags.includes('読書')) state.hourglass.selectedTags.push('読書');
+        const note = `『${book.title}』を読む`;
+        $('#dhTaskNote').value = note;
+        state.hourglass.draft = note;
+        $('#dhWageType').value = 'salary';
+        saveState();
+        renderReadingLog();
+        renderDhTags();
+        setTab('hourglass');
+        setTimeout(() => $('#dhTimerCard')?.scrollIntoView({ behavior:'smooth', block:'start' }), 30);
+        toast(`『${book.title}』を砂時計ログへ転記した。`);
+      }
+      function transferReadingTaskToHourglass(taskId) {
+        const task = state.tasks.find(t => t.id === taskId);
+        if (!task) return;
+        transferTaskToHourglass(task, false);
+        if (!state.hourglass.selectedTags.includes('読書')) state.hourglass.selectedTags.push('読書');
+        saveState();
+        renderDhTags();
+        toast('読書ミッションを砂時計ログへ転記した。');
+      }
+      function addReadingBook() {
+        const input = $('#readingBookTitleInput');
+        const title = input?.value.trim();
+        if (!title) return toast('本のタイトルを入れてくれ。');
+        normalizeReadingState();
+        const book = normalizeReadingBook({ title, createdAt: new Date().toISOString() });
+        setUndoPoint('読書本追加');
+        state.reading.books.unshift(book);
+        state.reading.selectedBookId = book.id;
+        if (!state.hourglass.tags.includes('読書')) state.hourglass.tags.push('読書');
+        input.value = '';
+        saveState();
+        renderReadingLog();
+        renderDhTags();
+        toast(`『${title}』を追加した。`);
+      }
+      function setReadingCurrentBook(bookId) { transferReadingBookToHourglass(bookId); }
+      function readingRecordFromHourglassEntry(entry) {
+        if (!entry || !entry.readingBookId) return;
+        normalizeReadingState();
+        const book = readingBookById(entry.readingBookId);
+        if (!book) return;
+        entry.readingBookId = book.id;
+        entry.readingBookTitle = book.title;
+        const date = readingDateKey(entry.endedAt);
+        book.readDays ||= {};
+        book.readDays[date] = { doneAt: new Date().toISOString(), sourceEntryId: entry.id };
+        const existing = (book.sessions || []).find(s => s.sourceEntryId === entry.id);
+        const payload = {
+          sourceEntryId: entry.id,
+          date,
+          durationSec: Number(entry.durationSec) || 0,
+          note: entry.note || '',
+          reviewRate: entry.reviewRate || '',
+          reviewText: entry.reviewText || '',
+          reviewHypothesis: entry.reviewHypothesis || '',
+          createdAt: existing?.createdAt || new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        if (existing) Object.assign(existing, payload);
+        else book.sessions.unshift({ id: uid(), ...payload });
+        book.sessions = book.sessions.slice(0, 300);
+      }
+      function editReadingTitle(bookId) {
+        const book = readingBookById(bookId);
+        if (!book) return;
+        const title = prompt('本のタイトルを修正', book.title);
+        if (title === null) return;
+        const clean = title.trim();
+        if (!clean) return toast('空のタイトルにはできねぇ。');
+        setUndoPoint('読書本タイトル修正');
+        book.title = clean;
+        saveState();
+        renderReadingLog();
+      }
+      function deleteReadingBook(bookId) {
+        const book = readingBookById(bookId);
+        if (!book) return;
+        if (!confirm(`『${book.title}』を削除する？\n読書時間・感想・チェックも消える。`)) return;
+        setUndoPoint('読書本削除');
+        state.reading.books = state.reading.books.filter(b => b.id !== bookId);
+        if (state.reading.selectedBookId === bookId) state.reading.selectedBookId = state.reading.books[0]?.id || '';
+        saveState();
+        renderReadingLog();
+      }
+      function addReadingCheck(bookId) {
+        const book = readingBookById(bookId);
+        if (!book) return;
+        const label = prompt('チェック項目を追加', '今日読む範囲を決める');
+        if (label === null) return;
+        const clean = label.trim();
+        if (!clean) return;
+        book.checkItems.push({ id: uid(), label: clean });
+        saveState();
+        renderReadingLog();
+      }
+      function deleteReadingCheck(bookId, checkId) {
+        const book = readingBookById(bookId);
+        if (!book) return;
+        book.checkItems = book.checkItems.filter(item => item.id !== checkId);
+        Object.keys(book.checks || {}).forEach(date => { if (book.checks[date]) delete book.checks[date][checkId]; });
+        saveState();
+        renderReadingLog();
+      }
+      function toggleReadingCheck(bookId, checkId, checked) {
+        const book = readingBookById(bookId);
+        if (!book) return;
+        const date = todayKey();
+        book.checks[date] ||= {};
+        book.checks[date][checkId] = !!checked;
+        saveState();
+      }
+      function toggleReadingReadToday(bookId, checked) {
+        const book = readingBookById(bookId);
+        if (!book) return;
+        const date = todayKey();
+        book.readDays ||= {};
+        if (checked) book.readDays[date] = { doneAt: new Date().toISOString(), manual: true };
+        else delete book.readDays[date];
+        saveState();
+        renderReadingLog();
+      }
+      function updateReadingNote(bookId, key, value) {
+        const book = readingBookById(bookId);
+        if (!book || !['before','during','after'].includes(key)) return;
+        book.notes[key] = value;
+        saveState();
+      }
+      function completeReadingBook(bookId) {
+        const book = readingBookById(bookId);
+        if (!book) return;
+        if (!book.completedAt) book.completedAt = new Date().toISOString();
+        saveState();
+        renderReadingLog();
+        celebrate();
+        playSound();
+        toast(`『${book.title}』読了。ちゃんと最後まで読んだな。えらいじゃねぇか。`);
+      }
+      function renderAll() { $('#selectedDate').value = state.selectedDate; $('#taskDate').value = state.selectedDate; renderStats(); renderTasks(); renderBrainDump(); renderReadingLog(); renderDhTags(); renderDhHistory(); renderHabits(); renderHistory(); renderSettings(); renderUndoButton(); }
+      function setTab(tab) { $$('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab)); $$('.view').forEach(view => view.classList.toggle('active', view.id === `view-${tab}`)); if (tab === 'history') renderHistory(); if (tab === 'habits') renderHabits(); if (tab === 'reading') renderReadingLog(); }
       function sealDay() { const key = state.selectedDate; state.history[key] ||= { logged:false, entries:[] }; if (state.history[key].logged) return toast('この日はもうログ済み。'); if (!confirm(`${dateLabel(key)} をログとして記録する？`)) return; setUndoPoint('今日をしめる'); state.history[key].logged = true; updateStreak(key); saveState(); renderAll(); celebrate(); }
       function updateStreak(key) { const last = state.profile.lastLoggedDate; if (!last) state.profile.streak = 1; else { const diff = Math.round((new Date(`${key}T00:00:00`) - new Date(`${last}T00:00:00`))/86400000); state.profile.streak = diff === 1 ? state.profile.streak + 1 : diff === 0 ? Math.max(1, state.profile.streak) : 1; } state.profile.lastLoggedDate = key; }
       function toast(message) { const zone = $('#toastZone'); const item = document.createElement('div'); item.className = 'toast'; item.textContent = message; zone.appendChild(item); setTimeout(() => { item.style.opacity='0'; item.style.transform='translateY(8px)'; setTimeout(() => item.remove(), 240); }, 4200); }
       function celebrate() { const zone = $('#confetti'); zone.innerHTML = ''; const colors = ['#ff9f43','#55c7f3','#8bd17c','#ffd166','#e75f65']; for (let i=0;i<34;i++) { const b = document.createElement('b'); b.style.left = `${Math.random()*100}%`; b.style.background = colors[Math.floor(Math.random()*colors.length)]; b.style.animationDelay = `${Math.random()*.25}s`; zone.appendChild(b); } setTimeout(() => zone.innerHTML = '', 1600); }
-      function playSound() { return; }
+      async function playSound() {
+        try {
+          if (state.hourglass?.endSound === false) return;
+          const ctx = await dhEnsureAudioContextReady();
+          if (!ctx) return toast('このブラウザは終了音に対応していない。');
+
+          const now = ctx.currentTime + 0.035;
+          const baseVolume = clamp(Number(state.hourglass?.endSoundVolume ?? 34), 0, 100) / 100;
+          const out = ctx.createGain();
+          const softBus = ctx.createGain();
+          const padBus = ctx.createGain();
+          const delay = ctx.createDelay();
+          const echo = ctx.createGain();
+          const lowpass = ctx.createBiquadFilter();
+
+          lowpass.type = 'lowpass';
+          lowpass.frequency.setValueAtTime(2600, now);
+          lowpass.Q.setValueAtTime(0.55, now);
+
+          out.gain.setValueAtTime(0.0001, now);
+          // 100%時はブラウンノイズ通常音量より十分に聞こえる設定。音色は柔らかいまま、全体ゲインだけ底上げする。
+          out.gain.exponentialRampToValueAtTime(Math.max(0.0001, baseVolume * 0.92), now + 0.055);
+          out.gain.setTargetAtTime(0.0001, now + 0.88, 0.22);
+
+          delay.delayTime.setValueAtTime(0.19, now);
+          echo.gain.setValueAtTime(baseVolume * 0.10, now);
+
+          const compressor = ctx.createDynamicsCompressor();
+          compressor.threshold.setValueAtTime(-14, now);
+          compressor.knee.setValueAtTime(18, now);
+          compressor.ratio.setValueAtTime(8, now);
+          compressor.attack.setValueAtTime(0.006, now);
+          compressor.release.setValueAtTime(0.22, now);
+
+          softBus.connect(lowpass).connect(out).connect(compressor).connect(ctx.destination);
+          softBus.connect(delay).connect(echo).connect(compressor);
+          padBus.connect(out);
+
+          // 低めの柔らかい3音。ポモドーロの切替音に近い「終わった感」は残しつつ、鋭いベル音を避ける。
+          [
+            { t: 0.00, f: 392.00, d: 0.28, type: 'sine', vol: 0.34 },
+            { t: 0.23, f: 523.25, d: 0.34, type: 'triangle', vol: 0.31 },
+            { t: 0.49, f: 659.25, d: 0.44, type: 'sine', vol: 0.28 }
+          ].forEach(note => {
+            const osc = ctx.createOscillator();
+            const g = ctx.createGain();
+            osc.type = note.type;
+            osc.frequency.setValueAtTime(note.f, now + note.t);
+            g.gain.setValueAtTime(0.0001, now + note.t);
+            g.gain.exponentialRampToValueAtTime(Math.max(0.0001, baseVolume * note.vol), now + note.t + 0.035);
+            g.gain.setTargetAtTime(0.0001, now + note.t + note.d * 0.58, 0.12);
+            osc.connect(g).connect(softBus);
+            osc.start(now + note.t);
+            osc.stop(now + note.t + note.d + 0.18);
+          });
+
+          // 耳に刺さらない短い「ふわっ」とした切替ノイズ。
+          const noiseBuffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.16), ctx.sampleRate);
+          const data = noiseBuffer.getChannelData(0);
+          let brown = 0;
+          for (let i = 0; i < data.length; i += 1) {
+            brown = brown * 0.985 + (Math.random() * 2 - 1) * 0.015;
+            const fade = 1 - i / data.length;
+            data[i] = brown * fade * 0.9;
+          }
+          const noise = ctx.createBufferSource();
+          const filter = ctx.createBiquadFilter();
+          const noiseGain = ctx.createGain();
+          noise.buffer = noiseBuffer;
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(980, now);
+          filter.Q.setValueAtTime(0.7, now);
+          noiseGain.gain.setValueAtTime(baseVolume * 0.070, now);
+          noiseGain.gain.setTargetAtTime(0.0001, now + 0.08, 0.045);
+          noise.connect(filter).connect(noiseGain).connect(padBus);
+          noise.start(now);
+          noise.stop(now + 0.16);
+        } catch (error) {
+          console.warn('終了音の再生に失敗しました。', error);
+          toast('終了音の再生に失敗した。ブラウザの音量・ミュート・終了音ONを確認してくれ。');
+        }
+      }
       function renderSettings() { renderSyncPanel(); }
       function exportData() { const blob = new Blob([JSON.stringify(state, null, 2)], { type:'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `yorozu-mission-${todayKey()}.json`; a.click(); URL.revokeObjectURL(url); }
       function importData(event) { const file = event.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = () => { try { setUndoPoint('データ読み込み'); state = deepMerge(defaultState(), JSON.parse(reader.result)); saveState(); renderAll(); toast('読み込んだ。'); } catch { toast('読み込みに失敗した。'); } }; reader.readAsText(file); event.target.value = ''; }
@@ -750,8 +1463,8 @@
       async function githubPull() { if (syncBusy) return; syncBusy = true; syncSettings.lastStatus = 'GitHubから読み込み中…'; renderSyncPanel(); try { const bundle = await readBundleFromGist(); setUndoPoint('GitHub読み込み'); state = deepMerge(defaultState(), bundle.state); localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); syncSettings.localDirty = false; syncSettings.localUpdatedAt = bundle.updatedAt || new Date().toISOString(); syncSettings.lastSyncedAt = new Date().toISOString(); syncSettings.lastStatus = 'GitHubから読み込み済み'; syncSettings.lastError = ''; saveSyncSettings(); renderAll(); toast('GitHubから読み込んだ。'); } catch (e) { syncSettings.lastStatus = 'GitHub読み込み失敗'; syncSettings.lastError = e.message; saveSyncSettings(); toast('GitHub読み込みに失敗した。'); } finally { syncBusy = false; } }
       async function githubSmartSync(auto = false) { if (!syncSettings.token) { if (!auto) toast('GitHubトークンが未設定だ。'); return; } await githubPush(auto); }
       function scheduleAutoSync() { if (syncTimerId) clearInterval(syncTimerId); syncTimerId = null; if (!syncSettings.auto || !syncSettings.token) return; syncTimerId = setInterval(() => githubSmartSync(true), 30000); }
-      function bindEvents() { $$('.tab-btn').forEach(btn => btn.addEventListener('click', () => setTab(btn.dataset.tab))); $$('[data-tab-go]').forEach(btn => btn.addEventListener('click', () => setTab(btn.dataset.tabGo))); $('#selectedDate').addEventListener('change', e => { state.selectedDate = e.target.value || todayKey(); saveState(); renderAll(); }); $('#todayBtn').addEventListener('click', () => { state.selectedDate = todayKey(); saveState(); renderAll(); }); $('#taskForm').addEventListener('submit', e => { e.preventDefault(); saveTaskFromForm(); }); $('#resetFormBtn').addEventListener('click', resetTaskForm); $('#undoLastBtn').addEventListener('click', undoLastAction); $('#sortBtn').addEventListener('click', () => { state.profile.sort = state.profile.sort === 'time' ? 'energy' : 'time'; saveState(); renderAll(); }); $('#clearDoneBtn').addEventListener('click', () => { state.profile.hideDone = !state.profile.hideDone; saveState(); renderAll(); }); $('#sealDayBtn').addEventListener('click', sealDay); $('#startQuickPomodoro').addEventListener('click', startHourglassFocus); $('#notifyBtn').addEventListener('click', async () => { if (!('Notification' in window)) return toast('通知非対応。'); const result = await Notification.requestPermission(); toast(result === 'granted' ? '通知を使えるようにした。' : '通知は許可されなかった。'); }); $('#brainDumpAddBtn').addEventListener('click', addBrainDump); $('#brainDumpClearBtn').addEventListener('click', clearBrainDump); $('#dhStartBtn').addEventListener('click', dhToggleTimer); $('#dhResetBtn').addEventListener('click', dhResetTimer); $('#dhFinishBtn').addEventListener('click', () => dhFinishTimer('manual')); $$('.dh-mode-btn').forEach(btn => btn.addEventListener('click', () => dhSetMode(btn.dataset.dhMode))); $$('.dh-preset').forEach(btn => btn.addEventListener('click', () => btn.dataset.dhFocus ? startHourglassFocus() : dhApplyDuration(Number(btn.dataset.dhSeconds)))); ['#dhMinutes','#dhSeconds'].forEach(sel => $(sel).addEventListener('change', () => dhApplyDuration(dhParseSeconds()))); $('#dhTaskNote').addEventListener('input', () => { state.hourglass.draft = $('#dhTaskNote').value; saveState(); dhUpdateStatus(); }); $('#dhWageType').addEventListener('change', saveState); $('#dhBirthDate').addEventListener('change', () => { state.hourglass.birthDate = $('#dhBirthDate').value; saveState(); updateLife(); }); $('#dhTagRow').addEventListener('click', e => { const rem = e.target.closest('[data-dh-remove]'); if (rem) { const tag = rem.dataset.dhRemove; state.hourglass.tags = state.hourglass.tags.filter(t => t !== tag); state.hourglass.selectedTags = state.hourglass.selectedTags.filter(t => t !== tag); saveState(); renderDhTags(); renderDhBottles(); return; } const chip = e.target.closest('[data-dh-tag]'); if (!chip) return; const tag = chip.dataset.dhTag; state.hourglass.selectedTags = state.hourglass.selectedTags.includes(tag) ? state.hourglass.selectedTags.filter(t => t !== tag) : [...state.hourglass.selectedTags, tag]; saveState(); renderDhTags(); }); $('#dhAddTagBtn').addEventListener('click', addDhTag); $('#dhRebuildBottlesBtn').addEventListener('click', renderDhBottles); $('#dhHistoryList').addEventListener('click', e => { const edit = e.target.closest('[data-dh-edit]'); const review = e.target.closest('[data-dh-review]'); const del = e.target.closest('[data-dh-delete]'); if (edit) return editDhHistoryEntry(edit.dataset.dhEdit); if (review) return openDhReview(review.dataset.dhReview); if (!del) return; state.hourglass.history = state.hourglass.history.filter(x => x.id !== del.dataset.dhDelete); saveState(); renderDhHistory(); renderHistory(); }); $('#dhClearHistoryBtn').addEventListener('click', () => { if (!confirm('砂時計ログをすべて削除する？')) return; state.hourglass.history = []; saveState(); renderDhHistory(); renderHistory(); }); $('#dhManualHistoryForm')?.addEventListener('submit', saveDhManualHistory); $('#dhManualResetBtn')?.addEventListener('click', resetDhManualForm); $('#dhReviewSaveBtn')?.addEventListener('click', saveDhReview); $('#dhReviewCloseBtn')?.addEventListener('click', closeDhReview); $('#dhReviewLaterBtn')?.addEventListener('click', closeDhReview); $('#dhNoiseVolume')?.addEventListener('input', dhSaveAudioSettings); $('#dhAudioStopBtn')?.addEventListener('click', () => { dhStopAudio(); toast('集中用サウンドを止めた。'); }); $('#htHabitForm').addEventListener('submit', e => { e.preventDefault(); saveHabitFromForm(); }); $('#htResetHabitBtn').addEventListener('click', resetHabitForm); $('#htWeekPrev').addEventListener('click', () => { state.habitWeekDate = htAddDays(state.habitWeekDate,-7); saveState(); renderHabits(); }); $('#htWeekToday').addEventListener('click', () => { state.habitWeekDate = todayKey(); saveState(); renderHabits(); }); $('#htWeekNext').addEventListener('click', () => { state.habitWeekDate = htAddDays(state.habitWeekDate,7); saveState(); renderHabits(); }); $('#htMonthPrev').addEventListener('click', () => { const d = htDateFromKey(state.habitMonthDate); d.setMonth(d.getMonth()-1); state.habitMonthDate = htKeyFromDate(d); saveState(); renderHabits(); }); $('#htMonthToday').addEventListener('click', () => { state.habitMonthDate = todayKey(); saveState(); renderHabits(); }); $('#htMonthNext').addEventListener('click', () => { const d = htDateFromKey(state.habitMonthDate); d.setMonth(d.getMonth()+1); state.habitMonthDate = htKeyFromDate(d); saveState(); renderHabits(); }); $('#htTagFilter').addEventListener('change', e => { state.habitTagFilter = e.target.value; saveState(); renderMonthCalendar(); }); $('#htWeekBoard').addEventListener('click', e => { const btn = e.target.closest('[data-ht-toggle]'); if (btn) toggleHabit(btn.dataset.htToggle, btn.dataset.htDate); }); $('#htMonthGrid').addEventListener('click', e => { const btn = e.target.closest('[data-ht-toggle]'); if (btn) toggleHabit(btn.dataset.htToggle, btn.dataset.htDate); }); $('#htHabitList').addEventListener('click', e => { const edit = e.target.closest('[data-ht-edit]'); const del = e.target.closest('[data-ht-delete]'); if (edit) editHabit(edit.dataset.htEdit); if (del) deleteHabit(del.dataset.htDelete); }); $('#htHabitTag').addEventListener('change', () => { const tag = htNormalizeTag($('#htHabitTag').value); if (tag === HT_MUSCLE_TAG) { $('#htHabitTarget').value = HT_DEFAULT_MUSCLE_TARGET; if (Number($('#htHabitMinutes').value || 0) < 15) $('#htHabitMinutes').value = 20; } }); $('#syncSaveSettingsBtn').addEventListener('click', () => { syncSettings.token = $('#syncToken').value.trim(); syncSettings.gistId = $('#syncGistId').value.trim(); syncSettings.fileName = $('#syncFileName').value.trim() || SYNC_FILE_DEFAULT; syncSettings.auto = !!$('#syncAutoEnabled')?.checked; syncSettings.lastStatus = '同期設定を保存済み'; syncSettings.lastError = ''; saveSyncSettings(); toast(syncSettings.auto ? '同期設定を保存した。30秒ごとに自動同期する。' : '同期設定を保存した。自動同期はオフ。'); }); $('#syncNowBtn')?.addEventListener('click', () => githubSmartSync(false)); $('#syncPushBtn').addEventListener('click', () => githubPush(false)); $('#syncPullBtn').addEventListener('click', githubPull); }
-      function init() { state.selectedDate ||= todayKey(); state.habitWeekDate ||= todayKey(); state.habitMonthDate ||= todayKey(); state.hourglass ||= { history:[], tags:[...defaultTags], selectedTags:[], birthDate:'', draft:'', activeTimer:null, noiseVolume:20, music:'off', musicVolume:14 }; state.hourglass.activeTimer ||= null; state.hourglass.noiseVolume = Number.isFinite(Number(state.hourglass.noiseVolume)) ? Number(state.hourglass.noiseVolume) : 20; $('#selectedDate').value = state.selectedDate; $('#taskDate').value = state.selectedDate; $('#dhBirthDate').value = state.hourglass.birthDate || ''; $('#dhTaskNote').value = state.hourglass.draft || ''; if ($('#dhNoiseVolume')) $('#dhNoiseVolume').value = state.hourglass.noiseVolume; bindEvents(); resetDhManualForm(); bindLifecycleRefresh(); restoreDhActiveTimer(); dhRenderAudioLabels(); dhUpdateDisplay(); dhUpdateHourglass(); dhUpdateStatus(); renderAll(); dhUpdateNow(); scheduleAutoSync(); setInterval(dhUpdateNow, 1000); console.assert(htWeekKeys('2026-05-10')[0] === '2026-05-04', '週開始は月曜'); console.assert(htAddDays('2026-05-10', 1) === '2026-05-11', '日付加算'); console.assert(htNormalizeTag(' 筋 ト レ ') === '筋トレ', 'タグ正規化'); }
+      function bindEvents() { $$('.tab-btn').forEach(btn => btn.addEventListener('click', () => setTab(btn.dataset.tab))); $$('[data-tab-go]').forEach(btn => btn.addEventListener('click', () => setTab(btn.dataset.tabGo))); $('#selectedDate').addEventListener('change', e => { state.selectedDate = e.target.value || todayKey(); saveState(); renderAll(); }); $('#todayBtn').addEventListener('click', () => { state.selectedDate = todayKey(); saveState(); renderAll(); }); $('#taskForm').addEventListener('submit', e => { e.preventDefault(); saveTaskFromForm(); }); $('#resetFormBtn').addEventListener('click', resetTaskForm); $('#undoLastBtn').addEventListener('click', undoLastAction); $('#sortBtn').addEventListener('click', () => { state.profile.sort = state.profile.sort === 'time' ? 'energy' : 'time'; saveState(); renderAll(); }); $('#clearDoneBtn').addEventListener('click', () => { state.profile.hideDone = !state.profile.hideDone; saveState(); renderAll(); }); $('#sealDayBtn').addEventListener('click', sealDay); $('#startQuickPomodoro').addEventListener('click', startHourglassFocus); $('#notifyBtn').addEventListener('click', async () => { if (!('Notification' in window)) return toast('通知非対応。'); const result = await Notification.requestPermission(); toast(result === 'granted' ? '通知を使えるようにした。' : '通知は許可されなかった。'); }); $('#brainDumpAddBtn').addEventListener('click', addBrainDump); $('#brainDumpClearBtn').addEventListener('click', clearBrainDump); $('#dhStartBtn').addEventListener('click', dhToggleTimer); $('#dhResetBtn').addEventListener('click', dhResetTimer); $('#dhFinishBtn').addEventListener('click', () => dhFinishTimer('manual')); $$('.dh-mode-btn').forEach(btn => btn.addEventListener('click', () => dhSetMode(btn.dataset.dhMode))); $$('.dh-preset').forEach(btn => btn.addEventListener('click', () => btn.dataset.dhFocus ? startHourglassFocus() : dhApplyDuration(Number(btn.dataset.dhSeconds)))); ['#dhMinutes','#dhSeconds'].forEach(sel => $(sel).addEventListener('change', () => dhApplyDuration(dhParseSeconds()))); $('#dhTaskNote').addEventListener('input', () => { state.hourglass.draft = $('#dhTaskNote').value; saveState(); dhUpdateStatus(); }); $('#dhWageType').addEventListener('change', saveState); $('#dhBirthDate').addEventListener('change', () => { state.hourglass.birthDate = $('#dhBirthDate').value; saveState(); updateLife(); }); $('#dhTagRow').addEventListener('click', e => { const rem = e.target.closest('[data-dh-remove]'); if (rem) { const tag = rem.dataset.dhRemove; state.hourglass.tags = state.hourglass.tags.filter(t => t !== tag); state.hourglass.selectedTags = state.hourglass.selectedTags.filter(t => t !== tag); saveState(); renderDhTags(); renderDhBottles(); return; } const chip = e.target.closest('[data-dh-tag]'); if (!chip) return; const tag = chip.dataset.dhTag; state.hourglass.selectedTags = state.hourglass.selectedTags.includes(tag) ? state.hourglass.selectedTags.filter(t => t !== tag) : [...state.hourglass.selectedTags, tag]; saveState(); renderDhTags(); }); $('#dhAddTagBtn').addEventListener('click', addDhTag); $('#dhRebuildBottlesBtn').addEventListener('click', renderDhBottles); $('#dhHistoryList').addEventListener('click', e => { const edit = e.target.closest('[data-dh-edit]'); const review = e.target.closest('[data-dh-review]'); const del = e.target.closest('[data-dh-delete]'); if (edit) return editDhHistoryEntry(edit.dataset.dhEdit); if (review) return openDhReview(review.dataset.dhReview); if (!del) return; state.hourglass.history = state.hourglass.history.filter(x => x.id !== del.dataset.dhDelete); saveState(); renderDhHistory(); renderHistory(); }); $('#dhClearHistoryBtn').addEventListener('click', () => { if (!confirm('砂時計ログをすべて削除する？')) return; state.hourglass.history = []; saveState(); renderDhHistory(); renderHistory(); }); $('#dhManualHistoryForm')?.addEventListener('submit', saveDhManualHistory); $('#dhManualResetBtn')?.addEventListener('click', resetDhManualForm); $('#dhReviewSaveBtn')?.addEventListener('click', saveDhReview); $('#dhReviewCloseBtn')?.addEventListener('click', closeDhReview); $('#dhReviewLaterBtn')?.addEventListener('click', closeDhReview); $('#dhNoiseVolume')?.addEventListener('input', dhSaveAudioSettings); $('#dhEndSoundEnabled')?.addEventListener('change', dhSaveAudioSettings); $('#dhEndSoundVolume')?.addEventListener('input', dhSaveAudioSettings); $('#dhEndSoundTestBtn')?.addEventListener('click', () => { dhSaveAudioSettings(); playSound(); }); $('#dhAudioStopBtn')?.addEventListener('click', () => { dhStopAudio(); toast('集中用サウンドを止めた。'); }); $('#readingAddBookBtn')?.addEventListener('click', addReadingBook); $('#readingBookTitleInput')?.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addReadingBook(); } }); $('#dhReadingBookSelect')?.addEventListener('change', e => { state.reading.selectedBookId = e.target.value || ''; saveState(); renderReadingLog(); }); $('#dhReadingSelectCurrentBtn')?.addEventListener('click', () => { setTab('reading'); setTimeout(() => $('#readingPanel')?.scrollIntoView({ behavior:'smooth', block:'start' }), 30); }); $('#readingLinkedMissions')?.addEventListener('click', e => { const btn = e.target.closest('[data-reading-transfer-task]'); if (btn) transferReadingTaskToHourglass(btn.dataset.readingTransferTask); }); $('#readingMonthTracker')?.addEventListener('click', e => { const btn = e.target.closest('[data-reading-month]'); if (!btn) return; const d = htDateFromKey(state.reading.monthDate || state.selectedDate || todayKey()); if (btn.dataset.readingMonth === 'prev') d.setMonth(d.getMonth()-1); if (btn.dataset.readingMonth === 'next') d.setMonth(d.getMonth()+1); if (btn.dataset.readingMonth === 'today') { state.reading.monthDate = todayKey(); } else { state.reading.monthDate = htKeyFromDate(d); } saveState(); renderReadingLog(); }); $('#readingBookList')?.addEventListener('click', e => { const card = e.target.closest('[data-reading-book]'); if (!card) return; const bookId = card.dataset.readingBook; if (e.target.closest('[data-reading-current]')) return setReadingCurrentBook(bookId); if (e.target.closest('[data-reading-edit-title]')) return editReadingTitle(bookId); if (e.target.closest('[data-reading-delete-book]')) return deleteReadingBook(bookId); if (e.target.closest('[data-reading-add-check]')) return addReadingCheck(bookId); const delCheck = e.target.closest('[data-reading-delete-check]'); if (delCheck) return deleteReadingCheck(bookId, delCheck.dataset.readingDeleteCheck); if (e.target.closest('[data-reading-complete]')) return completeReadingBook(bookId); }); $('#readingBookList')?.addEventListener('change', e => { const card = e.target.closest('[data-reading-book]'); if (!card) return; const readToday = e.target.closest('[data-reading-read-today]'); if (readToday) return toggleReadingReadToday(card.dataset.readingBook, readToday.checked); const check = e.target.closest('[data-reading-check]'); if (check) toggleReadingCheck(card.dataset.readingBook, check.dataset.readingCheck, check.checked); }); $('#readingBookList')?.addEventListener('input', e => { const card = e.target.closest('[data-reading-book]'); if (!card) return; const note = e.target.closest('[data-reading-note]'); if (note) updateReadingNote(card.dataset.readingBook, note.dataset.readingNote, note.value); }); $('#htHabitForm').addEventListener('submit', e => { e.preventDefault(); saveHabitFromForm(); }); $('#htResetHabitBtn').addEventListener('click', resetHabitForm); $('#htWeekPrev').addEventListener('click', () => { state.habitWeekDate = htAddDays(state.habitWeekDate,-7); saveState(); renderHabits(); }); $('#htWeekToday').addEventListener('click', () => { state.habitWeekDate = todayKey(); saveState(); renderHabits(); }); $('#htWeekNext').addEventListener('click', () => { state.habitWeekDate = htAddDays(state.habitWeekDate,7); saveState(); renderHabits(); }); $('#htMonthPrev').addEventListener('click', () => { const d = htDateFromKey(state.habitMonthDate); d.setMonth(d.getMonth()-1); state.habitMonthDate = htKeyFromDate(d); saveState(); renderHabits(); }); $('#htMonthToday').addEventListener('click', () => { state.habitMonthDate = todayKey(); saveState(); renderHabits(); }); $('#htMonthNext').addEventListener('click', () => { const d = htDateFromKey(state.habitMonthDate); d.setMonth(d.getMonth()+1); state.habitMonthDate = htKeyFromDate(d); saveState(); renderHabits(); }); $('#htTagFilter').addEventListener('change', e => { state.habitTagFilter = e.target.value; saveState(); renderMonthCalendar(); }); $('#htWeekBoard').addEventListener('click', e => { const btn = e.target.closest('[data-ht-toggle]'); if (btn) toggleHabit(btn.dataset.htToggle, btn.dataset.htDate); }); $('#htMonthGrid').addEventListener('click', e => { const btn = e.target.closest('[data-ht-toggle]'); if (btn) toggleHabit(btn.dataset.htToggle, btn.dataset.htDate); }); $('#htHabitList').addEventListener('click', e => { const edit = e.target.closest('[data-ht-edit]'); const del = e.target.closest('[data-ht-delete]'); if (edit) editHabit(edit.dataset.htEdit); if (del) deleteHabit(del.dataset.htDelete); }); $('#htHabitTag').addEventListener('change', () => { const tag = htNormalizeTag($('#htHabitTag').value); if (tag === HT_MUSCLE_TAG) { $('#htHabitTarget').value = HT_DEFAULT_MUSCLE_TARGET; if (Number($('#htHabitMinutes').value || 0) < 15) $('#htHabitMinutes').value = 20; } }); $('#syncSaveSettingsBtn').addEventListener('click', () => { syncSettings.token = $('#syncToken').value.trim(); syncSettings.gistId = $('#syncGistId').value.trim(); syncSettings.fileName = $('#syncFileName').value.trim() || SYNC_FILE_DEFAULT; syncSettings.auto = !!$('#syncAutoEnabled')?.checked; syncSettings.lastStatus = '同期設定を保存済み'; syncSettings.lastError = ''; saveSyncSettings(); toast(syncSettings.auto ? '同期設定を保存した。30秒ごとに自動同期する。' : '同期設定を保存した。自動同期はオフ。'); }); $('#syncNowBtn')?.addEventListener('click', () => githubSmartSync(false)); $('#syncPushBtn').addEventListener('click', () => githubPush(false)); $('#syncPullBtn').addEventListener('click', githubPull); }
+      function init() { state.selectedDate ||= todayKey(); state.habitWeekDate ||= todayKey(); state.habitMonthDate ||= todayKey(); state.hourglass ||= { history:[], tags:[...defaultTags], selectedTags:[], birthDate:'', draft:'', activeTimer:null, noiseVolume:20, endSound:true, endSoundVolume:60, music:'off', musicVolume:14 }; state.hourglass.activeTimer ||= null; if (!state.hourglass.tags.includes('読書')) state.hourglass.tags.splice(2, 0, '読書'); state.hourglass.noiseVolume = Number.isFinite(Number(state.hourglass.noiseVolume)) ? Number(state.hourglass.noiseVolume) : 20; state.hourglass.endSound = state.hourglass.endSound !== false; state.hourglass.endSoundVolume = Number.isFinite(Number(state.hourglass.endSoundVolume)) ? Number(state.hourglass.endSoundVolume) : 60; normalizeReadingState(); state.reading.monthDate ||= state.selectedDate || todayKey(); $('#selectedDate').value = state.selectedDate; $('#taskDate').value = state.selectedDate; $('#dhBirthDate').value = state.hourglass.birthDate || ''; $('#dhTaskNote').value = state.hourglass.draft || ''; if ($('#dhNoiseVolume')) $('#dhNoiseVolume').value = state.hourglass.noiseVolume; if ($('#dhEndSoundEnabled')) $('#dhEndSoundEnabled').checked = state.hourglass.endSound; if ($('#dhEndSoundVolume')) $('#dhEndSoundVolume').value = state.hourglass.endSoundVolume; bindEvents(); resetDhManualForm(); bindLifecycleRefresh(); restoreDhActiveTimer(); dhRenderAudioLabels(); dhUpdateDisplay(); dhUpdateHourglass(); dhUpdateStatus(); renderAll(); dhUpdateNow(); scheduleAutoSync(); setInterval(dhUpdateNow, 1000); console.assert(htWeekKeys('2026-05-10')[0] === '2026-05-04', '週開始は月曜'); console.assert(htAddDays('2026-05-10', 1) === '2026-05-11', '日付加算'); console.assert(htNormalizeTag(' 筋 ト レ ') === '筋トレ', 'タグ正規化'); }
       init();
     })();
   </script>
