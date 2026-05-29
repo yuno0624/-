@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -694,6 +693,7 @@
                 <div class="dh-mode-row" role="group" aria-label="砂時計ログの計測モード"><button class="dh-mode-btn active" type="button" data-dh-mode="down">カウントダウン</button><button class="dh-mode-btn" type="button" data-dh-mode="up">カウントアップ</button></div>
                 <p id="dhDisplay" class="dh-display">05:00</p><p id="dhElapsedNote" class="dh-elapsed-note">記録予定：5分</p>
                 <div class="dh-actions"><button id="dhResetBtn" class="btn ghost" type="button">Reset</button><button id="dhStartBtn" class="btn primary" type="button">Start</button><button id="dhFinishBtn" class="btn blue" type="button" disabled>終了して記録</button></div>
+                <div class="dh-countdown-only"><div class="dh-time-inputs"><div class="field" style="max-width:90px"><label for="dhMinutes">分</label><input id="dhMinutes" class="dh-time-num" type="number" min="0" max="99" value="5" inputmode="numeric" /></div><span class="dh-colon">:</span><div class="field" style="max-width:90px"><label for="dhSeconds">秒</label><input id="dhSeconds" class="dh-time-num" type="number" min="0" max="59" value="0" inputmode="numeric" /></div></div><div class="dh-presets"><button class="btn small dh-preset active" type="button" data-dh-seconds="300">5分</button><button class="btn small dh-preset" type="button" data-dh-seconds="600">10分</button><button class="btn small dh-preset" type="button" data-dh-seconds="1500" data-dh-focus="true">集中</button><button class="btn small dh-preset" type="button" data-dh-seconds="2700">45分</button><button class="btn small dh-preset" type="button" data-dh-seconds="3600">60分</button></div></div>
                 <div class="dh-audio-box" aria-label="Brown Noise">
                   <p class="dh-card-title">Brown Noise</p>
                   <div class="dh-audio-compact">
@@ -721,7 +721,6 @@
                     <button class="btn small" id="dhReadingSelectCurrentBtn" type="button">本の管理へ</button>
                   </div>
                 </div>
-                <div class="dh-countdown-only"><div class="dh-time-inputs"><div class="field" style="max-width:90px"><label for="dhMinutes">分</label><input id="dhMinutes" class="dh-time-num" type="number" min="0" max="99" value="5" inputmode="numeric" /></div><span class="dh-colon">:</span><div class="field" style="max-width:90px"><label for="dhSeconds">秒</label><input id="dhSeconds" class="dh-time-num" type="number" min="0" max="59" value="0" inputmode="numeric" /></div></div><div class="dh-presets"><button class="btn small dh-preset active" type="button" data-dh-seconds="300">5分</button><button class="btn small dh-preset" type="button" data-dh-seconds="600">10分</button><button class="btn small dh-preset" type="button" data-dh-seconds="1500" data-dh-focus="true">集中</button><button class="btn small dh-preset" type="button" data-dh-seconds="2700">45分</button><button class="btn small dh-preset" type="button" data-dh-seconds="3600">60分</button></div></div>
                 <p class="soft">途中終了でも「終了して記録」を押せば、実測時間を小瓶へ移す。</p>
               </div>
             </section>
@@ -952,19 +951,21 @@
         const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
         const data = buffer.getChannelData(0);
         let brown = 0;
-        let max = 0;
+        let dc = 0;
+        let sum = 0;
         for (let i = 0; i < length; i += 1) {
           const white = Math.random() * 2 - 1;
-          brown = (brown * 0.999) + (white * 0.035);
-          data[i] = brown;
-          const abs = Math.abs(brown);
-          if (abs > max) max = abs;
+          brown = brown * 0.992 + white * 0.045;
+          dc = dc * 0.995 + brown * 0.005;
+          const shaped = (brown - dc) * 0.9 + white * 0.035;
+          data[i] = shaped;
+          sum += shaped * shaped;
         }
-        const normalize = max ? 0.58 / max : 1;
-        for (let i = 0; i < length; i += 1) data[i] *= normalize;
+        const rms = Math.sqrt(sum / length) || 1;
+        const normalize = 0.30 / rms;
+        for (let i = 0; i < length; i += 1) data[i] = clamp(data[i] * normalize, -0.95, 0.95);
         return buffer;
-      }
-      async function dhStartNoise() {
+      }      async function dhStartNoise() {
         const ctx = await dhPrimeAudio();
         if (!ctx) return;
         if (!dhAudio.noiseSource) {
@@ -974,12 +975,12 @@
 
           const highpass = ctx.createBiquadFilter();
           highpass.type = 'highpass';
-          highpass.frequency.value = 22;
+          highpass.frequency.value = 45;
           highpass.Q.value = 0.55;
 
           const lowpass = ctx.createBiquadFilter();
           lowpass.type = 'lowpass';
-          lowpass.frequency.value = 1150;
+          lowpass.frequency.value = 1500;
           lowpass.Q.value = 0.62;
 
           const gain = ctx.createGain();
@@ -1006,7 +1007,7 @@
         const noise = clamp(parseInt($('#dhNoiseVolume')?.value, 10) || 0, 0, 100) / 100;
         if (dhAudio.noiseGain) {
           dhAudio.noiseGain.gain.cancelScheduledValues(ctx.currentTime);
-          dhAudio.noiseGain.gain.setTargetAtTime(noise * 0.52, ctx.currentTime, 0.18);
+          dhAudio.noiseGain.gain.setTargetAtTime(noise * 0.78, ctx.currentTime, 0.18);
         }
       }
       function dhStartAudio() { dhSaveAudioSettings(); dhStartNoise().catch(() => toast('音声の有効化に失敗した。終了音テストを一度押してくれ。')); }
